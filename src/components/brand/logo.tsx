@@ -1,7 +1,13 @@
+import {
+  LP_LOGO_PATHS,
+  LP_LOGO_TRANSFORM,
+  LP_LOGO_VIEWBOX,
+} from './lp-logo-paths';
+
 /**
- * Marca LPFIN — monograma geométrico "LP" desenhado do zero:
- * o "L" aberto embaixo e o "P" com haste longa e bojo circular.
- * Usa `currentColor`, então funciona nos temas claro e escuro.
+ * Logotipo LP — usa a arte original (`lp-logo.svg`, extraída por
+ * `scripts/build-logo.mjs`). `fill="currentColor"` faz o logo alternar entre
+ * preto e branco conforme o tema.
  */
 export function LpMark({
   className = 'size-9',
@@ -12,23 +18,18 @@ export function LpMark({
 }) {
   return (
     <svg
-      viewBox="0 0 64 64"
+      viewBox={LP_LOGO_VIEWBOX}
       role="img"
       aria-label={title}
       className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={5.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      fill="currentColor"
     >
       <title>{title}</title>
-      {/* L */}
-      <path d="M21 15v30.5h14" />
-      {/* P — haste com descendente */}
-      <path d="M42 15v40" />
-      {/* P — bojo */}
-      <path d="M42 15.5h6.8a8.6 8.6 0 0 1 0 17.2H42" />
+      <g transform={LP_LOGO_TRANSFORM}>
+        {LP_LOGO_PATHS.map((path, index) => (
+          <path key={index} d={path} />
+        ))}
+      </g>
     </svg>
   );
 }
@@ -43,8 +44,8 @@ export function LpWordmark({
 }) {
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      <span className="inline-flex size-9 items-center justify-center rounded-xl bg-ink text-surface">
-        <LpMark className="size-6" />
+      <span className="inline-flex size-9 items-center justify-center rounded-xl bg-ink px-1.5 py-1 text-surface">
+        <LpMark className="h-full w-full" />
       </span>
       {compact ? null : (
         <span className="leading-tight">
@@ -57,4 +58,5 @@ export function LpWordmark({
     </div>
   );
 }
+
 

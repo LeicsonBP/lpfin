@@ -2,10 +2,7 @@ import Link from 'next/link';
 
 import { Badge, Card, EmptyState, SectionTitle } from '@/components/ui/kit';
 import { GhostSubmitButton } from '@/components/ui/submit-button';
-import {
-  deleteIncomeAction,
-  toggleIncomeReceivedAction,
-} from '@/lib/actions/incomes';
+import { deleteIncomeAction } from '@/lib/actions/incomes';
 import { deletePayrollDeductionAction } from '@/lib/actions/payroll';
 import { formatBRL, formatInstallmentLabel } from '@/lib/format';
 import { isOverdue } from '@/lib/finance';
@@ -155,12 +152,6 @@ export function IncomeSection({ incomes }: { incomes: Income[] }) {
               <span className="money text-sm font-medium text-positive">
                 {formatBRL(income.amount)}
               </span>
-
-              <form action={toggleIncomeReceivedAction}>
-                <input type="hidden" name="id" value={income.id} />
-                <input type="hidden" name="received" value={income.is_received ? 'false' : 'true'} />
-                <GhostSubmitButton>{income.is_received ? 'recebido' : 'receber'}</GhostSubmitButton>
-              </form>
 
               <form action={deleteIncomeAction}>
                 <input type="hidden" name="id" value={income.id} />

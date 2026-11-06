@@ -1,5 +1,7 @@
+import { clsx } from 'clsx';
+import { Check } from 'lucide-react';
+
 import { Card, EmptyState, SectionTitle } from '@/components/ui/kit';
-import { GhostSubmitButton } from '@/components/ui/submit-button';
 import { toggleCardPaymentAction } from '@/lib/actions/cards';
 import { formatBRL } from '@/lib/format';
 import { groupByCard } from '@/lib/finance';
@@ -75,18 +77,59 @@ export function CardsSection({
             const total = list.reduce((sum, item) => sum + item.amount, 0);
             const usedPercent =
               card.credit_limit > 0 ? Math.min(100, (total / card.credit_limit) * 100) : 0;
+            const isPaid = paymentByCard.get(card.id)?.is_paid ?? false;
 
             return (
-              <div key={card.id} className="rounded-xl border border-line p-3">
+              <div
+                key={card.id}
+                className={clsx('rounded-xl border p-3', isPaid ? 'border-positive' : 'border-line')}
+              >
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="text-sm font-semibold text-ink">{card.name}</p>
+                  <div className="min-w-0">
+                    <p
+                      className={clsx(
+                        'flex items-center gap-2 text-sm font-semibold',
+                        isPaid ? 'text-ink-muted line-through' : 'text-ink',
+                      )}
+                    >
+                      {card.name}
+                      {!card.is_active ? (
+                        <span className="text-[10px] font-medium uppercase text-ink-muted">
+                          inativo
+                        </span>
+                      ) : null}
+                    </p>
                     <p className="text-[11px] text-ink-muted">
                       limite {formatBRL(card.credit_limit)} · fecha dia {card.closing_day} · vence
                       dia {card.due_day}
                     </p>
                   </div>
-                  <p className="money text-sm font-semibold text-ink">{formatBRL(total)}</p>
+
+                  <div className="flex shrink-0 items-center gap-2">
+                    <p className="money text-sm font-semibold text-ink">{formatBRL(total)}</p>
+
+                    <form action={toggleCardPaymentAction}>
+                      <input type="hidden" name="card_id" value={card.id} />
+                      <input type="hidden" name="year" value={reference.year} />
+                      <input type="hidden" name="month" value={reference.month} />
+                      <input type="hidden" name="paid" value={isPaid ? 'false' : 'true'} />
+                      <button
+                        type="submit"
+                        title={isPaid ? 'Marcar fatura como pendente' : 'Marcar fatura como paga'}
+                        aria-label={
+                          isPaid ? 'Marcar fatura como pendente' : 'Marcar fatura como paga'
+                        }
+                        className={clsx(
+                          'inline-flex size-7 items-center justify-center rounded-full border transition',
+                          isPaid
+                            ? 'border-positive bg-positive-soft text-positive'
+                            : 'border-line text-ink-muted hover:border-brand-400 hover:text-brand-700',
+                        )}
+                      >
+                        <Check className="size-3.5" />
+                      </button>
+                    </form>
+                  </div>
                 </div>
 
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-muted">
@@ -94,29 +137,6 @@ export function CardsSection({
                     className="h-full rounded-full bg-brand-600"
                     style={{ width: `${usedPercent}%` }}
                   />
-                </div>
-
-                <div className="mt-2 flex items-center justify-between gap-2 rounded-lg bg-surface-muted px-2 py-1.5">
-                  <span className="text-[11px] font-medium text-ink-muted">Fatura paga?</span>
-                  <form action={toggleCardPaymentAction} className="flex items-center gap-1">
-                    <input type="hidden" name="card_id" value={card.id} />
-                    <input type="hidden" name="year" value={reference.year} />
-                    <input type="hidden" name="month" value={reference.month} />
-                    <input
-                      type="hidden"
-                      name="paid"
-                      value={paymentByCard.get(card.id)?.is_paid ? 'false' : 'true'}
-                    />
-                    <GhostSubmitButton
-                      className={
-                        paymentByCard.get(card.id)?.is_paid
-                          ? 'border-positive bg-positive-soft text-positive'
-                          : ''
-                      }
-                    >
-                      {paymentByCard.get(card.id)?.is_paid ? 'Sim' : 'Não'}
-                    </GhostSubmitButton>
-                  </form>
                 </div>
 
                 {list.length === 0 ? (

@@ -169,6 +169,20 @@ src/
 - **Cadastro em andamento**: compras e débitos em folha aceitam **“parcela atual”** (ex.: 2 de 3 ou
   11 de 12); os meses anteriores são gerados automaticamente e entram como **pagos**.
 
+### Ajustes da quarta rodada (v4)
+
+- **Logotipo oficial**: a arte enviada foi renomeada para `src/components/brand/lp-logo.svg` e é a
+  fonte única. `npm run logo` (`scripts/build-logo.mjs`) extrai os paths para `lp-logo-paths.ts`
+  — o componente usa `fill="currentColor"`, então o logo alterna entre **preto e branco** com o
+  tema — e regenera o favicon `src/app/icon.svg`.
+- **Fatura do cartão**: o checkbox agora é o **mesmo botão redondo** das contas fixas. Ao pagar, o
+  card do cartão ganha **borda verde** e o **nome do cartão fica riscado** (as compras do mês
+  continuam normais, sem riscado).
+- **Ganhos**: removido o checkbox “recebido”. A recorrência é gerada automaticamente **até o mês da
+  última parcela** cadastrada (compras ou folha), com mínimo de 12 meses e teto de 120, e há a
+  opção **“Encerrar recorrência”**: escolhe-se o mês e o sistema remove dali para frente,
+  preservando todo o histórico anterior.
+
 ## Deploy na Vercel
 
 1. Importe o repositório `LeicsonBP/lpfin`.

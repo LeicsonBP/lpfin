@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "db:migrate": "node scripts/apply-migrations.mjs",
+    "logo": "node scripts/build-logo.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },

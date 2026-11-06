@@ -74,11 +74,8 @@ export const incomeSchema = z.object({
   reference_year: yearSchema,
   reference_month: monthSchema,
   kind: z.enum(['salary', 'extra', 'other']).default('salary'),
-  is_received: z.boolean().default(false),
-  /** ganho recorrente (ex.: salário): gera as ocorrências dos meses seguintes */
+  /** ganho recorrente (ex.: salário): gera até o mês do último compromisso cadastrado */
   is_recurring: z.boolean().default(false),
-  /** quantos meses gerar à frente quando for recorrente */
-  recurrence_months: z.coerce.number().int().min(1).max(36).default(24),
 });
 
 export const payrollDeductionSchema = z

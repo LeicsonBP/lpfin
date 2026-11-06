@@ -1,6 +1,5 @@
 'use client';
 
-import { clsx } from 'clsx';
 import { Pencil } from 'lucide-react';
 import { useState, useTransition } from 'react';
 
@@ -43,12 +42,9 @@ export function InstallmentRow({
       </span>
 
       <div className="min-w-0 flex-1">
-        <p className={clsx('truncate text-sm', installment.is_paid ? 'text-ink-muted line-through' : 'text-ink')}>
-          {description}
-        </p>
+        <p className="truncate text-sm text-ink">{description}</p>
         <div className="flex items-center gap-1.5">
           {cardName ? <span className="text-[11px] text-ink-muted">{cardName}</span> : null}
-          {installment.is_paid ? <Badge tone="positive">pago</Badge> : null}
           {installment.is_adjusted ? <Badge tone="warning">ajustada</Badge> : null}
           {overdue ? <Badge tone="negative">atrasada</Badge> : null}
         </div>

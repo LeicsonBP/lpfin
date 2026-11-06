@@ -206,3 +206,21 @@ tabela `card_payments` (+RLS +trigger), colunas `series_id`/`is_recurring` em `i
 - Débito em folha **11/12** → 12 linhas geradas, **10 marcadas como pagas**.
 - `npm run build` (12 rotas) · `npm test` (14 testes) · `npm run lint` (exit 0).
 - Smoke test: `/login` traz a caixa de seleção de tema (Sistema/Claro/Escuro), o novo logo e o botão Google.
+
+---
+
+## [Ajustes v4] — quarta rodada de correções
+
+| # | Pedido | Implementação |
+|---|---|---|
+| 1 | Usar o SVG enviado, renomear e alternar preto/branco com o tema | `New-LP-Logo-B.svg` → **`src/components/brand/lp-logo.svg`** (fonte única). `scripts/build-logo.mjs` (`npm run logo`) extrai os paths/transform para `lp-logo-paths.ts` e regenera `src/app/icon.svg`. O componente `LpMark` usa `fill="currentColor"` → preto no tema claro, branco no escuro. |
+| 2 | Checkbox da fatura igual às contas fixas + borda verde e nome riscado | `CardsSection` usa o **mesmo botão redondo** (`Check`) das contas fixas no cabeçalho do cartão; quando pago: `border-positive` no card e `line-through` no nome. `InstallmentRow` não risca mais as compras nem exibe badge “pago”. |
+| 3 | Ganhos sem “recebido” e recorrência limitada pela maior parcela + encerrar | Removidos `is_received` (schema, ações, UI e badge) e o campo `recurrence_months`. `createIncomeAction` calcula o horizonte pelo **último mês de parcela** (`installments`/`payroll_deductions`), mínimo 12 meses e teto 120. Nova ação `endRecurringIncomeAction` apaga do mês escolhido em diante (preserva o passado) com UI “Encerrar recorrência”. |
+
+### Validação E2E (dados removidos ao final)
+
+- Compra com 10 parcelas até **Ago/2027** → recorrência de salário gerou **10 meses** (Nov/2026 → Ago/2027).
+- “Encerrar a partir de Fev/2027” → mantidos **Nov/2026, Dez/2026, Jan/2027**; fev/2027 em diante removidos.
+- Smoke test: `/login` traz os paths do logo oficial (`M8989 23040`) e **não** o desenho antigo; `/icon.svg` responde 200.
+- `npm run build` (12 rotas) · `npm test` (14 testes) · `npm run lint` (exit 0).
+

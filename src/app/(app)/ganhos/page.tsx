@@ -6,7 +6,7 @@ import {
   adjustRecurringIncomeAction,
   createIncomeAction,
   deleteIncomeAction,
-  toggleIncomeReceivedAction,
+  endRecurringIncomeAction,
 } from '@/lib/actions/incomes';
 import { listIncomes } from '@/lib/data/incomes';
 import { currentMonth, monthKey } from '@/lib/finance';
@@ -45,17 +45,7 @@ const FIELDS: EntityField[] = [
     options: yearSelectOptions(),
     required: true,
   },
-  {
-    name: 'recurrence_months',
-    label: 'Meses a gerar',
-    type: 'number',
-    min: 1,
-    max: 36,
-    defaultValue: 24,
-    hint: 'Só se aplica a ganhos recorrentes',
-  },
   { name: 'is_recurring', label: 'Recorrente (ex.: salário)', type: 'checkbox', defaultValue: false },
-  { name: 'is_received', label: 'Já recebido', type: 'checkbox', defaultValue: false },
 ];
 
 interface SeriesSummary {
@@ -148,7 +138,6 @@ export default async function GanhosPage() {
                   <p className="flex items-center gap-2 text-sm font-semibold text-ink">
                     {income.description}
                     {income.is_recurring ? <Badge tone="brand">recorrente</Badge> : null}
-                    {income.is_received ? <Badge tone="positive">recebido</Badge> : null}
                   </p>
                   <p className="text-[11px] text-ink-muted">
                     {income.kind === 'salary'
@@ -163,17 +152,6 @@ export default async function GanhosPage() {
                   <span className="money text-sm font-medium text-positive">
                     {formatBRL(income.amount)}
                   </span>
-                  <form action={toggleIncomeReceivedAction}>
-                    <input type="hidden" name="id" value={income.id} />
-                    <input
-                      type="hidden"
-                      name="received"
-                      value={income.is_received ? 'false' : 'true'}
-                    />
-                    <GhostSubmitButton>
-                      {income.is_received ? 'desmarcar' : 'receber'}
-                    </GhostSubmitButton>
-                  </form>
                   <form action={deleteIncomeAction}>
                     <input type="hidden" name="id" value={income.id} />
                     <GhostSubmitButton className="text-negative">excluir</GhostSubmitButton>
@@ -247,6 +225,41 @@ export default async function GanhosPage() {
                         },
                       ]}
                       submitLabel="Aplicar deste mês em diante"
+                    />
+                  </div>
+                </details>
+
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-[11px] font-semibold text-negative">
+                    Encerrar recorrência
+                  </summary>
+                  <div className="mt-3">
+                    <p className="mb-2 text-[11px] text-ink-muted">
+                      Os meses anteriores a este são preservados; este mês e os futuros são
+                      removidos.
+                    </p>
+                    <EntityForm
+                      action={endRecurringIncomeAction}
+                      fields={[
+                        { name: 'series_id', type: 'hidden', defaultValue: item.seriesId },
+                        {
+                          name: 'reference_month',
+                          label: 'Encerrar a partir de',
+                          type: 'select',
+                          defaultValue: NOW.month,
+                          options: monthSelectOptions(),
+                          required: true,
+                        },
+                        {
+                          name: 'reference_year',
+                          label: 'Ano',
+                          type: 'select',
+                          defaultValue: NOW.year,
+                          options: yearSelectOptions(),
+                          required: true,
+                        },
+                      ]}
+                      submitLabel="Encerrar recorrência"
                     />
                   </div>
                 </details>
