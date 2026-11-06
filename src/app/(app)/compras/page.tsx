@@ -70,8 +70,8 @@ export default async function ComprasPage({
 
       <Card>
         <SectionTitle
-          title="Nova compra (em lote)"
-          description="Um cartão por lote · informe o valor da parcela e a quantidade — pode lançar várias compras de uma vez"
+          title="Nova compra"
+          description="Escolha o cartão, informe o valor da parcela e a quantidade — dá para lançar várias compras de uma vez"
         />
         <BatchPurchaseForm cards={cards} initialMonth={reference} />
       </Card>

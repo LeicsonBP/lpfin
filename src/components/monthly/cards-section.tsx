@@ -154,26 +154,44 @@ export function CardsSection({
                   </div>
                 </div>
 
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-muted">
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{ width: `${usedPercent}%`, backgroundColor: card.color }}
-                  />
-                </div>
+                <details className="group mt-2">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-[11px] font-medium text-ink-muted transition hover:text-ink">
+                    <span>
+                      {list.length === 0
+                        ? 'Sem compras neste mês'
+                        : `${list.length} compra(s) · ${formatBRL(total)}`}
+                    </span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-700">
+                      <span className="group-open:hidden">detalhes</span>
+                      <span className="hidden group-open:inline">ocultar</span>
+                    </span>
+                  </summary>
 
-                {list.length === 0 ? (
-                  <p className="mt-3 text-[11px] text-ink-muted">Sem compras neste mês.</p>
-                ) : (
-                  <ul className="mt-2">
-                    {list.map((installment) => (
-                      <InstallmentRow
-                        key={installment.id}
-                        installment={installment}
-                        description={descriptionById.get(installment.transaction_id) ?? 'Compra'}
+                  <div className="mt-2">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-surface-muted">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${usedPercent}%`, backgroundColor: card.color }}
                       />
-                    ))}
-                  </ul>
-                )}
+                    </div>
+
+                    {list.length === 0 ? (
+                      <p className="mt-2 text-[11px] text-ink-muted">Nenhuma compra neste mês.</p>
+                    ) : (
+                      <ul className="mt-2">
+                        {list.map((installment) => (
+                          <InstallmentRow
+                            key={installment.id}
+                            installment={installment}
+                            description={
+                              descriptionById.get(installment.transaction_id) ?? 'Compra'
+                            }
+                          />
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </details>
               </div>
             );
           })}
@@ -188,15 +206,26 @@ export function CardsSection({
                   )}
                 </p>
               </div>
-              <ul className="mt-2">
-                {(byCard.get('none') ?? []).map((installment) => (
-                  <InstallmentRow
-                    key={installment.id}
-                    installment={installment}
-                    description={descriptionById.get(installment.transaction_id) ?? 'Compra'}
-                  />
-                ))}
-              </ul>
+
+              <details className="group mt-2">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-1 py-1.5 text-[11px] font-medium text-ink-muted transition hover:text-ink">
+                  <span>{(byCard.get('none') ?? []).length} compra(s)</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-700">
+                    <span className="group-open:hidden">detalhes</span>
+                    <span className="hidden group-open:inline">ocultar</span>
+                  </span>
+                </summary>
+
+                <ul className="mt-2">
+                  {(byCard.get('none') ?? []).map((installment) => (
+                    <InstallmentRow
+                      key={installment.id}
+                      installment={installment}
+                      description={descriptionById.get(installment.transaction_id) ?? 'Compra'}
+                    />
+                  ))}
+                </ul>
+              </details>
             </div>
           ) : null}
         </div>

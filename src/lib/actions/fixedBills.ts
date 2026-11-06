@@ -34,7 +34,7 @@ function readCreateForm(formData: FormData) {
 }
 
 function refresh() {
-  revalidatePath('/contas-fixas');
+  revalidatePath('/contas');
   revalidatePath('/mes');
   revalidatePath('/dashboard');
 }
@@ -136,6 +136,28 @@ export async function deleteFixedBillAction(formData: FormData): Promise<void> {
 
   const { supabase } = await requireUser();
   await supabase.from('fixed_bills').delete().eq('id', id);
+  refresh();
+}
+
+/**
+ * Interrompe uma conta parcelada a partir de um mês: remove as parcelas do mês
+ * informado em diante e preserva todo o histórico anterior.
+ */
+export async function stopFixedBillEntriesAction(formData: FormData): Promise<void> {
+  const id = formData.get('id');
+  const year = Number(formData.get('reference_year'));
+  const month = Number(formData.get('reference_month'));
+
+  if (typeof id !== 'string' || id === '') return;
+  if (!Number.isInteger(year) || !Number.isInteger(month)) return;
+
+  const { supabase } = await requireUser();
+  await supabase
+    .from('fixed_bills_entries')
+    .delete()
+    .eq('fixed_bill_id', id)
+    .or(`reference_year.gt.${year},and(reference_year.eq.${year},reference_month.gte.${month})`);
+
   refresh();
 }
 

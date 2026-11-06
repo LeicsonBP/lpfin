@@ -146,7 +146,7 @@ export function BatchPurchaseForm({
         </button>
 
         <p className="money text-xs font-medium text-ink-muted">
-          Total do lote: <span className="text-ink">{formatBRL(batchCents / 100)}</span>
+          Total das compras: <span className="text-ink">{formatBRL(batchCents / 100)}</span>
         </p>
       </div>
 

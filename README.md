@@ -109,7 +109,7 @@ src/
 │  ├─ (app)/dashboard           # histórico + previsão
 │  ├─ (app)/compras             # transactions + parcelas
 │  ├─ (app)/cartoes             # CRUD de cartões
-│  ├─ (app)/contas-fixas        # CRUD do "molde" das contas fixas
+│  ├─ (app)/contas              # CRUD de contas (fixas e parceladas)
 │  ├─ (app)/ganhos              # receitas do mês
 │  └─ (app)/debitos             # débitos em folha (fixos/parcelados)
 │  └─ (app)/ajustes             # tema + cor de destaque (salva na conta)
@@ -145,13 +145,13 @@ src/
   linha em `installments` por mês.
 - **Ajuste individual de parcela**: editar o valor de uma parcela grava `is_adjusted = true`
   sem afetar as demais nem o total da compra.
-- **Contas fixas em duas camadas**: `fixed_bills` é o molde (nome, vencimento, valor estimado) e
+- **Contas em duas camadas**: `fixed_bills` é o molde (nome, vencimento, valor estimado) e
   `fixed_bills_entries` guarda o valor real de cada mês (upsert por competência).
 - **Contas com parcelas**: `fixed_bills.kind = 'installment'` cobre financiamentos/empréstimos — o
   cadastro pede o total de parcelas e em qual parcela a conta está hoje, e o sistema gera os
   lançamentos dos meses anteriores (pagos) e futuros. Na visão mensal a conta mostra `35/36`; a
   projeção usa o **valor real da parcela de cada mês** e a conta desaparece quando a série acaba.
-- **Balanço do mês**: `Ganhos − (Cartões + Contas Fixas + Folha)`, verde se positivo e vermelho
+- **Balanço do mês**: `Ganhos − (Cartões + Contas + Folha)`, verde se positivo e vermelho
   se negativo.
 - **Projeção futura** (`forecastNextMonths`): contas fixas pela média histórica real
   (fallback no valor base), parcelas pela soma exata já agendada e compras **à vista** pela média
@@ -170,7 +170,9 @@ src/
 - **Cartões**: seletor de cor em grade (paleta + hexadecimal), **limite restante** calculado com
   fatura do mês + parcelas atrasadas + futuras (`summarizeCardLimit`) e **checkbox mensal de fatura
   paga** (`card_payments`).
-- **Contas fixas**: checkbox de pago por mês mesmo sem lançamento (upsert automático do valor real).
+- **Contas**: checkbox de pago por mês mesmo sem lançamento (upsert automático do valor real);
+  contas parceladas podem ser **encerradas a partir de um mês** (as parcelas futuras saem, o
+  histórico fica) — e débitos em folha não têm estado "atrasado", pois são automáticos.
 - **Débitos em folha**: sem checkbox — são recorrentes/automáticos (badge "automático").
 - **Ganhos recorrentes**: geração automática de até 36 meses com `series_id` e ajuste de valor
   a partir de um mês (preserva o histórico anterior).

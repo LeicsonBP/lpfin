@@ -5,6 +5,7 @@ import { GhostSubmitButton } from '@/components/ui/submit-button';
 import {
   createFixedBillAction,
   deleteFixedBillAction,
+  stopFixedBillEntriesAction,
   updateFixedBillAction,
 } from '@/lib/actions/fixedBills';
 import { listFixedBills } from '@/lib/data/fixedBills';
@@ -14,10 +15,10 @@ import type { FixedBill } from '@/lib/types';
 
 const NOW = currentMonth();
 
-/** Cadastro: fixa (todo mês) ou parcelada (financiamento/empréstimo). */
+/** Cadastro: conta fixa (todo mês) ou parcelada (crediário, financiamento...). */
 function createFields(): EntityField[] {
   return [
-    { name: 'name', label: 'Nome da conta', required: true, placeholder: 'RGE, financiamento...' },
+    { name: 'name', label: 'Nome da conta', required: true, placeholder: 'RGE, crediário...' },
     {
       name: 'kind',
       label: 'Tipo',
@@ -25,8 +26,9 @@ function createFields(): EntityField[] {
       defaultValue: 'fixed',
       options: [
         { value: 'fixed', label: 'Fixa (todo mês)' },
-        { value: 'installment', label: 'Parcelada (financiamento)' },
+        { value: 'installment', label: 'Parcelada' },
       ],
+      hint: 'Parcelada vale para crediário, financiamento, empréstimo...',
     },
     {
       name: 'base_value',
@@ -107,20 +109,20 @@ function updateFields(bill: FixedBill): EntityField[] {
   ];
 }
 
-export default async function ContasFixasPage() {
+export default async function ContasPage() {
   const bills = await listFixedBills();
 
   return (
     <div className="space-y-4">
       <AppHeader
-        title="Contas fixas"
-        subtitle="O cadastro é apenas o molde: o valor real é lançado mês a mês na visão mensal"
+        title="Contas"
+        subtitle="Contas fixas e parceladas — o valor real é lançado mês a mês na visão mensal"
       />
 
       <Card>
         <SectionTitle
           title="Nova conta"
-          description="Conta fixa (todo mês) ou parcelada (financiamento/empréstimo)"
+          description="Fixa (todo mês) ou parcelada (crediário, financiamento, empréstimo...)"
         />
         <EntityForm action={createFixedBillAction} fields={createFields()} submitLabel="Criar conta" />
       </Card>
@@ -129,14 +131,14 @@ export default async function ContasFixasPage() {
         <SectionTitle title="Contas cadastradas" description={`${bills.length} conta(s)`} />
 
         {bills.length === 0 ? (
-          <EmptyState title="Nenhuma conta fixa" description="Cadastre a primeira acima." />
+          <EmptyState title="Nenhuma conta cadastrada" description="Cadastre a primeira acima." />
         ) : (
           <ul className="space-y-2">
             {bills.map((bill) => (
               <li key={bill.id} className="rounded-xl border border-line p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <p className="flex items-center gap-2 text-sm font-semibold text-ink">
+                    <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-ink">
                       {bill.name}
                       {!bill.is_active ? <Badge>inativa</Badge> : null}
                       {bill.kind === 'installment' ? (
@@ -172,6 +174,57 @@ export default async function ContasFixasPage() {
                     />
                   </div>
                 </details>
+
+                {bill.kind === 'installment' ? (
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-[11px] font-semibold text-negative">
+                      Encerrar parcelas
+                    </summary>
+                    <div className="mt-3 space-y-2 rounded-xl border border-line p-3">
+                      <p className="text-[11px] text-ink-muted">
+                        Remove as parcelas do mês escolhido em diante (o histórico anterior é
+                        preservado). Use quando não for dar prosseguimento ao pagamento.
+                      </p>
+                      <form
+                        action={stopFixedBillEntriesAction}
+                        className="flex flex-wrap items-end gap-2"
+                      >
+                        <input type="hidden" name="id" value={bill.id} />
+                        <label className="space-y-1 text-[11px] text-ink-muted">
+                          <span className="block">A partir de</span>
+                          <select
+                            name="reference_month"
+                            defaultValue={NOW.month}
+                            className="rounded-lg border border-line bg-surface px-2 py-1 text-xs text-ink"
+                          >
+                            {monthSelectOptions().map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <label className="space-y-1 text-[11px] text-ink-muted">
+                          <span className="block">Ano</span>
+                          <select
+                            name="reference_year"
+                            defaultValue={NOW.year}
+                            className="rounded-lg border border-line bg-surface px-2 py-1 text-xs text-ink"
+                          >
+                            {yearSelectOptions().map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <GhostSubmitButton className="text-negative">
+                          Encerrar parcelas
+                        </GhostSubmitButton>
+                      </form>
+                    </div>
+                  </details>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -180,3 +233,4 @@ export default async function ContasFixasPage() {
     </div>
   );
 }
+

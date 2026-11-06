@@ -13,7 +13,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/compras', label: 'Compras', icon: Receipt },
   { href: '/cartoes', label: 'Cartões', icon: CreditCard },
-  { href: '/contas-fixas', label: 'Contas fixas', icon: Wallet },
+  { href: '/contas', label: 'Contas', icon: Wallet },
   { href: '/ganhos', label: 'Ganhos', icon: TrendingUp },
   { href: '/debitos', label: 'Folha', icon: Receipt },
   { href: '/ajustes', label: 'Ajustes', icon: Settings },

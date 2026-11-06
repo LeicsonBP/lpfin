@@ -5,7 +5,6 @@ import { GhostSubmitButton } from '@/components/ui/submit-button';
 import { deleteIncomeAction } from '@/lib/actions/incomes';
 import { deletePayrollDeductionAction } from '@/lib/actions/payroll';
 import { formatBRL, formatInstallmentLabel } from '@/lib/format';
-import { isOverdue } from '@/lib/finance';
 import type {
   FixedBill,
   FixedBillEntry,
@@ -44,7 +43,7 @@ export function FixedBillsSection({
   return (
     <Card>
       <SectionTitle
-        title="Contas fixas"
+        title="Contas"
         description={`Valores reais de ${monthLabel}`}
         action={<span className="money text-sm font-semibold text-ink">{formatBRL(total)}</span>}
       />
@@ -55,10 +54,10 @@ export function FixedBillsSection({
           description="Cadastre contas como aluguel, energia e internet."
           action={
             <Link
-              href="/contas-fixas"
+              href="/contas"
               className="text-xs font-semibold text-brand-700 hover:underline"
             >
-              Cadastrar conta fixa
+              Cadastrar conta
             </Link>
           }
         />
@@ -107,7 +106,6 @@ export function PayrollSection({ payroll }: { payroll: PayrollDeduction[] }) {
                 </p>
                 <div className="flex items-center gap-1.5">
                   <Badge tone="neutral">automático</Badge>
-                  {isOverdue(item) ? <Badge tone="negative">atrasado</Badge> : null}
                 </div>
               </div>
 
