@@ -145,8 +145,12 @@ src/
   linha em `installments` por mês.
 - **Ajuste individual de parcela**: editar o valor de uma parcela grava `is_adjusted = true`
   sem afetar as demais nem o total da compra.
-- **Contas fixas em duas camadas**: `fixed_bills` é o molde (nome, vencimento, valor base) e
+- **Contas fixas em duas camadas**: `fixed_bills` é o molde (nome, vencimento, valor estimado) e
   `fixed_bills_entries` guarda o valor real de cada mês (upsert por competência).
+- **Contas com parcelas**: `fixed_bills.kind = 'installment'` cobre financiamentos/empréstimos — o
+  cadastro pede o total de parcelas e em qual parcela a conta está hoje, e o sistema gera os
+  lançamentos dos meses anteriores (pagos) e futuros. Na visão mensal a conta mostra `35/36`; a
+  projeção usa o **valor real da parcela de cada mês** e a conta desaparece quando a série acaba.
 - **Balanço do mês**: `Ganhos − (Cartões + Contas Fixas + Folha)`, verde se positivo e vermelho
   se negativo.
 - **Projeção futura** (`forecastNextMonths`): contas fixas pela média histórica real
