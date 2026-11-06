@@ -4,7 +4,8 @@ import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
-import { addMonths, currentMonth, isSameMonth } from '@/lib/finance';
+import { MONTH_COOKIE } from '@/lib/cookies';
+import { addMonths, currentMonth, isSameMonth, monthKey } from '@/lib/finance';
 import { formatMonthLabel } from '@/lib/format';
 import type { MonthRef } from '@/lib/types';
 
@@ -50,6 +51,8 @@ export function MonthPicker({
   }, [open]);
 
   function goTo(target: MonthRef) {
+    // mantém o contexto de mês em todas as telas (cookie lido no servidor)
+    document.cookie = `${MONTH_COOKIE}=${monthKey(target)}; path=/; max-age=31536000; samesite=lax`;
     setOpen(false);
     setYearOverride(null);
     router.push(`${basePath}?ano=${target.year}&mes=${target.month}`);

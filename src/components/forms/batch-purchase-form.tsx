@@ -9,7 +9,7 @@ import { createPurchasesBatchAction } from '@/lib/actions/transactions';
 import { currentMonth } from '@/lib/finance';
 import { formatBRL, monthSelectOptions, yearSelectOptions } from '@/lib/format';
 import { parseMoneyInput } from '@/lib/money';
-import type { ActionResult, Card as CardModel } from '@/lib/types';
+import type { ActionResult, Card as CardModel, MonthRef } from '@/lib/types';
 
 import { PurchaseLineRow, type PurchaseLineDraft } from './purchase-line-row';
 
@@ -19,10 +19,16 @@ const NOW = currentMonth();
  * Cadastro em lote: escolhe UM cartão e lança várias compras de uma vez.
  * Cada compra é informada pelo valor da parcela e pela quantidade de parcelas.
  */
-export function BatchPurchaseForm({ cards }: { cards: CardModel[] }) {
+export function BatchPurchaseForm({
+  cards,
+  initialMonth,
+}: {
+  cards: CardModel[];
+  initialMonth?: MonthRef;
+}) {
   const [cardId, setCardId] = useState<string>(cards[0]?.id ?? '');
-  const [startMonth, setStartMonth] = useState(String(NOW.month));
-  const [startYear, setStartYear] = useState(String(NOW.year));
+  const [startMonth, setStartMonth] = useState(String(initialMonth?.month ?? NOW.month));
+  const [startYear, setStartYear] = useState(String(initialMonth?.year ?? NOW.year));
   const [lines, setLines] = useState<PurchaseLineDraft[]>([
     { key: 1, description: '', installment_amount: '', installments_count: 1, current_installment: 1 },
   ]);

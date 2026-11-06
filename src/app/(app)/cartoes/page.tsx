@@ -1,12 +1,14 @@
 import { AppHeader } from '@/components/layout/nav';
+import { MonthPicker } from '@/components/layout/month-picker';
 import { EntityForm, type EntityField } from '@/components/forms/entity-form';
 import { Badge, Card, EmptyState, SectionTitle } from '@/components/ui/kit';
 import { GhostSubmitButton } from '@/components/ui/submit-button';
 import { createCardAction, deleteCardAction, updateCardAction } from '@/lib/actions/cards';
 import { listCards } from '@/lib/data/cards';
 import { listInstallments } from '@/lib/data/transactions';
-import { currentMonth, summarizeCardLimit } from '@/lib/finance';
-import { formatBRL } from '@/lib/format';
+import { summarizeCardLimit } from '@/lib/finance';
+import { formatBRL, formatMonthLabel } from '@/lib/format';
+import { resolveMonth } from '@/lib/month-context';
 import type { Card as CardModel, Installment } from '@/lib/types';
 
 function fields(card?: CardModel): EntityField[] {
@@ -49,9 +51,15 @@ function fields(card?: CardModel): EntityField[] {
   ];
 }
 
-export default async function CartoesPage() {
+export default async function CartoesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ano?: string; mes?: string }>;
+}) {
+  const params = await searchParams;
+  const reference = await resolveMonth(params);
+
   const [cards, installments] = await Promise.all([listCards(), listInstallments()]);
-  const reference = currentMonth();
 
   const byCard = new Map<string, Installment[]>();
   for (const installment of installments) {
@@ -63,7 +71,12 @@ export default async function CartoesPage() {
 
   return (
     <div className="space-y-4">
-      <AppHeader title="Cartões" subtitle="Limite, fechamento e vencimento de cada cartão" />
+      <AppHeader
+        title="Cartões"
+        subtitle={`Fatura e limite restante em ${formatMonthLabel(reference).toLowerCase()}`}
+      >
+        <MonthPicker reference={reference} basePath="/cartoes" />
+      </AppHeader>
 
       <Card>
         <SectionTitle title="Novo cartão" description="Usado para agrupar as compras do mês" />

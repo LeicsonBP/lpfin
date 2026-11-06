@@ -1,16 +1,17 @@
 import { AppHeader } from '@/components/layout/nav';
+import { MonthPicker } from '@/components/layout/month-picker';
 import { ForecastChart } from '@/components/charts/forecast-chart';
 import { HistoryChart } from '@/components/charts/history-chart';
 import { Badge, Card, EmptyState, SectionTitle, StatTile } from '@/components/ui/kit';
 import { getDashboardData } from '@/lib/data/monthly';
 import {
-  currentMonth,
+  addMonths,
   forecastNextMonths,
   historicalSeries,
   lastCommitmentMonth,
-  parseMonthParam,
 } from '@/lib/finance';
 import { formatBRL, formatMonthLabel } from '@/lib/format';
+import { resolveMonth } from '@/lib/month-context';
 
 export default async function DashboardPage({
   searchParams,
@@ -18,7 +19,7 @@ export default async function DashboardPage({
   searchParams: Promise<{ meses?: string; ano?: string; mes?: string }>;
 }) {
   const params = await searchParams;
-  const anchor = parseMonthParam(params.ano, params.mes);
+  const anchor = await resolveMonth(params);
   const monthsAhead = params.meses === '12' ? 12 : 6;
 
   const data = await getDashboardData(anchor);
@@ -50,21 +51,24 @@ export default async function DashboardPage({
     <div className="space-y-4">
       <AppHeader
         title="Dashboard"
-        subtitle="Histórico recente e projeção de cenários futuros"
+        subtitle={`Histórico recente e projeção a partir de ${formatMonthLabel(anchor).toLowerCase()}`}
       >
-        <div className="flex items-center gap-2 rounded-xl border border-line bg-surface p-1 text-xs">
-          <a
-            href="/dashboard?meses=6"
-            className={`rounded-lg px-3 py-1.5 font-semibold ${monthsAhead === 6 ? 'bg-primary text-on-primary' : 'text-ink-muted'}`}
-          >
-            6 meses
-          </a>
-          <a
-            href="/dashboard?meses=12"
-            className={`rounded-lg px-3 py-1.5 font-semibold ${monthsAhead === 12 ? 'bg-primary text-on-primary' : 'text-ink-muted'}`}
-          >
-            12 meses
-          </a>
+        <div className="flex flex-wrap items-center gap-2">
+          <MonthPicker reference={anchor} basePath="/dashboard" />
+          <div className="flex items-center gap-2 rounded-xl border border-line bg-surface p-1 text-xs">
+            <a
+              href={`/dashboard?ano=${anchor.year}&mes=${anchor.month}&meses=6`}
+              className={`rounded-lg px-3 py-1.5 font-semibold ${monthsAhead === 6 ? 'bg-primary text-on-primary' : 'text-ink-muted'}`}
+            >
+              6 meses
+            </a>
+            <a
+              href={`/dashboard?ano=${anchor.year}&mes=${anchor.month}&meses=12`}
+              className={`rounded-lg px-3 py-1.5 font-semibold ${monthsAhead === 12 ? 'bg-primary text-on-primary' : 'text-ink-muted'}`}
+            >
+              12 meses
+            </a>
+          </div>
         </div>
       </AppHeader>
 
@@ -111,7 +115,7 @@ export default async function DashboardPage({
         <Card>
           <SectionTitle
             title="Previsão futura"
-            description={`Projeção de ${monthsAhead} meses a partir de ${formatMonthLabel(currentMonth()).toLowerCase()}`}
+            description={`Projeção de ${monthsAhead} meses a partir de ${formatMonthLabel(addMonths(anchor, 1)).toLowerCase()}`}
           />
           <ForecastChart
             data={forecast.map((point) => ({

@@ -19,7 +19,16 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 /** Itens exibidos na barra inferior do mobile. */
-export const MOBILE_BAR_ITEMS = NAV_ITEMS.slice(0, 5);
+export const MOBILE_BAR_ITEMS: NavItem[] = [
+  NAV_ITEMS[0]!, // Mês
+  NAV_ITEMS[2]!, // Compras
+  NAV_ITEMS[3]!, // Cartões
+  NAV_ITEMS[4]!, // Contas fixas
+  NAV_ITEMS[6]!, // Folha
+];
 
 /** Itens que só aparecem no menu do topo (mobile). */
-export const MOBILE_MENU_ITEMS = NAV_ITEMS.slice(5);
+export const MOBILE_MENU_ITEMS: NavItem[] = [
+  NAV_ITEMS[1]!, // Dashboard
+  NAV_ITEMS[5]!, // Ganhos
+];

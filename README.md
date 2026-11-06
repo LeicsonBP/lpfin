@@ -123,6 +123,10 @@ src/
 - **O "mês" não é tabela**: é a chave `reference_year` + `reference_month`. A visão mensal
   consulta `installments`, `fixed_bills_entries`, `incomes` e `payroll_deductions` por essa
   competência (sempre filtrada por RLS/`user_id`).
+- **Contexto de mês global**: a competência escolhida no seletor fica em cookie (`lpfin-month`) e é
+  respeitada por **Mês, Compras, Cartões, Ganhos, Folha e Dashboard** — a URL (`?ano=&mes=`) tem
+  precedência sobre o cookie, que tem precedência sobre o mês atual. As telas mostram o seletor no
+  cabeçalho e só listam o que pertence àquele mês (em Compras, compras com parcela na competência).
 - **Motor de parcelamento** (`lib/finance.ts`): `buildInstallmentPlan` divide o total em centavos
   (a sobra vai para as primeiras parcelas — `100,00 / 3 = 33,34 + 33,33 + 33,33`) e cria uma
   linha em `installments` por mês.

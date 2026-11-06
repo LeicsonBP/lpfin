@@ -2,6 +2,7 @@
 
 import { Moon, Sun } from 'lucide-react';
 
+import { THEME_COOKIE } from '@/lib/cookies';
 import type { Theme } from '@/lib/theme';
 
 const OPTIONS: { value: Theme | 'system'; label: string }[] = [
@@ -27,7 +28,7 @@ export function ThemeSelect({
 
     document.documentElement.classList.toggle('dark', dark);
 
-    document.cookie = `lpfin-theme=${
+    document.cookie = `${THEME_COOKIE}=${
       value === 'system' ? (dark ? 'dark' : 'light') : value
     }; path=/; max-age=31536000; samesite=lax`;
   }

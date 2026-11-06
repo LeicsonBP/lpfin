@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/layout/nav';
+import { MonthPicker } from '@/components/layout/month-picker';
 import { EntityForm, type EntityField } from '@/components/forms/entity-form';
 import { Badge, Card, EmptyState, SectionTitle } from '@/components/ui/kit';
 import { GhostSubmitButton } from '@/components/ui/submit-button';
@@ -12,6 +13,7 @@ import {
   monthSelectOptions,
   yearSelectOptions,
 } from '@/lib/format';
+import { resolveMonth } from '@/lib/month-context';
 
 const now = currentMonth();
 
@@ -70,16 +72,26 @@ const FIELDS: EntityField[] = [
   },
 ];
 
-export default async function DebitosPage() {
-  const payroll = await listPayroll();
+export default async function DebitosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ano?: string; mes?: string }>;
+}) {
+  const params = await searchParams;
+  const reference = await resolveMonth(params);
+
+  const payroll = await listPayroll(reference);
   const total = payroll.reduce((sum, item) => sum + item.amount, 0);
+  const monthLabel = formatMonthLabel(reference).toLowerCase();
 
   return (
     <div className="space-y-4">
       <AppHeader
         title="Débitos em folha"
-        subtitle="Descontos automáticos no salário: fixos ou parcelados"
-      />
+        subtitle={`Descontos automáticos no salário — ${monthLabel}`}
+      >
+        <MonthPicker reference={reference} basePath="/debitos" />
+      </AppHeader>
 
       <Card>
         <SectionTitle
@@ -96,7 +108,7 @@ export default async function DebitosPage() {
       <Card>
         <SectionTitle
           title="Débitos lançados"
-          description={`${payroll.length} lançamento(s)`}
+          description={`${payroll.length} lançamento(s) em ${monthLabel}`}
           action={<span className="money text-sm font-semibold text-ink">{formatBRL(total)}</span>}
         />
 

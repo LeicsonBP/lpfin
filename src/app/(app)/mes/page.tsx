@@ -4,8 +4,9 @@ import { BalanceCard } from '@/components/monthly/balance-card';
 import { CardsSection } from '@/components/monthly/cards-section';
 import { FixedBillsSection, IncomeSection, PayrollSection } from '@/components/monthly/list-sections';
 import { getMonthData } from '@/lib/data/monthly';
-import { parseMonthParam, summarizeMonth } from '@/lib/finance';
+import { summarizeMonth } from '@/lib/finance';
 import { formatMonthLabel } from '@/lib/format';
+import { resolveMonth } from '@/lib/month-context';
 
 export default async function MesPage({
   searchParams,
@@ -13,7 +14,7 @@ export default async function MesPage({
   searchParams: Promise<{ ano?: string; mes?: string }>;
 }) {
   const params = await searchParams;
-  const reference = parseMonthParam(params.ano, params.mes);
+  const reference = await resolveMonth(params);
   const data = await getMonthData(reference);
 
   const summary = summarizeMonth({

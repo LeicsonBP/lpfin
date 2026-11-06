@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/layout/nav';
+import { MonthPicker } from '@/components/layout/month-picker';
 import { EntityForm, type EntityField } from '@/components/forms/entity-form';
 import { Badge, Card, EmptyState, SectionTitle } from '@/components/ui/kit';
 import { GhostSubmitButton } from '@/components/ui/submit-button';
@@ -11,6 +12,7 @@ import {
 import { listIncomes } from '@/lib/data/incomes';
 import { currentMonth, monthKey } from '@/lib/finance';
 import { formatBRL, formatMonthLabel, monthSelectOptions, yearSelectOptions } from '@/lib/format';
+import { resolveMonth } from '@/lib/month-context';
 import type { Income, MonthRef } from '@/lib/types';
 
 const NOW = currentMonth();
@@ -90,10 +92,18 @@ function buildSeries(incomes: Income[]): SeriesSummary[] {
   return [...map.values()].sort((a, b) => a.description.localeCompare(b.description));
 }
 
-export default async function GanhosPage() {
+export default async function GanhosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ano?: string; mes?: string }>;
+}) {
+  const params = await searchParams;
+  const reference = await resolveMonth(params);
+
   const incomes = await listIncomes();
   const monthIncomes = incomes.filter(
-    (income) => income.reference_year === NOW.year && income.reference_month === NOW.month,
+    (income) =>
+      income.reference_year === reference.year && income.reference_month === reference.month,
   );
   const series = buildSeries(incomes);
   const totalMonth = monthIncomes.reduce((sum, income) => sum + income.amount, 0);
@@ -103,7 +113,9 @@ export default async function GanhosPage() {
       <AppHeader
         title="Ganhos"
         subtitle="Receitas do mês e recorrências (ex.: salário com ajuste anual)"
-      />
+      >
+        <MonthPicker reference={reference} basePath="/ganhos" />
+      </AppHeader>
 
       <Card>
         <SectionTitle
@@ -115,7 +127,7 @@ export default async function GanhosPage() {
 
       <Card>
         <SectionTitle
-          title={`Ganhos de ${formatMonthLabel(NOW).toLowerCase()}`}
+          title={`Ganhos de ${formatMonthLabel(reference).toLowerCase()}`}
           description={`${monthIncomes.length} lançamento(s)`}
           action={
             <span className="money text-sm font-semibold text-positive">{formatBRL(totalMonth)}</span>

@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/layout/nav';
+import { MonthPicker } from '@/components/layout/month-picker';
 import { BatchPurchaseForm } from '@/components/forms/batch-purchase-form';
 import { EntityForm } from '@/components/forms/entity-form';
 import { Badge, Card, EmptyState, SectionTitle } from '@/components/ui/kit';
@@ -9,7 +10,8 @@ import {
 } from '@/lib/actions/transactions';
 import { listCards } from '@/lib/data/cards';
 import { listInstallments, listTransactions } from '@/lib/data/transactions';
-import { formatBRL } from '@/lib/format';
+import { formatBRL, formatMonthLabel } from '@/lib/format';
+import { resolveMonth } from '@/lib/month-context';
 import type { Installment } from '@/lib/types';
 
 import { installmentRange, transactionFields } from './transaction-fields';
@@ -19,47 +21,71 @@ const CATEGORY_LABEL: Record<string, string> = {
   aprazo: 'À prazo',
 };
 
-export default async function ComprasPage() {
-  const [transactions, cards, installments] = await Promise.all([
+export default async function ComprasPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ano?: string; mes?: string }>;
+}) {
+  const params = await searchParams;
+  const reference = await resolveMonth(params);
+
+  const [allTransactions, cards, allInstallments] = await Promise.all([
     listTransactions(),
     listCards(),
     listInstallments(),
   ]);
 
   const byTransaction = new Map<string, Installment[]>();
-  for (const installment of installments) {
+  const monthTransactionIds = new Set<string>();
+
+  for (const installment of allInstallments) {
     const list = byTransaction.get(installment.transaction_id) ?? [];
     list.push(installment);
     byTransaction.set(installment.transaction_id, list);
+
+    if (
+      installment.reference_year === reference.year &&
+      installment.reference_month === reference.month
+    ) {
+      monthTransactionIds.add(installment.transaction_id);
+    }
   }
+
   for (const list of byTransaction.values()) {
     list.sort((a, b) => a.installment_number - b.installment_number);
   }
 
   const cardName = new Map(cards.map((card) => [card.id, card.name] as const));
+  const transactions = allTransactions.filter((item) => monthTransactionIds.has(item.id));
+  const monthLabel = formatMonthLabel(reference).toLowerCase();
 
   return (
     <div className="space-y-4">
       <AppHeader
         title="Compras"
-        subtitle="Cada compra gera as parcelas automaticamente, mês a mês"
-      />
+        subtitle={`Compras com parcela em ${monthLabel} — cada compra gera as parcelas automaticamente`}
+      >
+        <MonthPicker reference={reference} basePath="/compras" />
+      </AppHeader>
 
       <Card>
         <SectionTitle
           title="Nova compra (em lote)"
           description="Um cartão por lote · informe o valor da parcela e a quantidade — pode lançar várias compras de uma vez"
         />
-        <BatchPurchaseForm cards={cards} />
+        <BatchPurchaseForm cards={cards} initialMonth={reference} />
       </Card>
 
       <Card>
-        <SectionTitle title="Compras cadastradas" description={`${transactions.length} compra(s)`} />
+        <SectionTitle
+          title={`Compras de ${monthLabel}`}
+          description={`${transactions.length} compra(s) com parcela neste mês`}
+        />
 
         {transactions.length === 0 ? (
           <EmptyState
-            title="Nenhuma compra cadastrada"
-            description="Cadastre a primeira compra acima para ver as parcelas na visão mensal."
+            title={`Nenhuma compra com parcela em ${monthLabel}`}
+            description="Use o seletor de mês para ver outros meses ou cadastre uma compra acima."
           />
         ) : (
           <ul className="space-y-2">
