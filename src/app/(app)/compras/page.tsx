@@ -63,7 +63,7 @@ export default async function ComprasPage({
     <div className="space-y-4">
       <AppHeader
         title="Compras"
-        subtitle={`Compras com parcela em ${monthLabel} — cada compra gera as parcelas automaticamente`}
+        subtitle={`Compras lançadas em ${monthLabel} — à vista ou parceladas`}
       >
         <MonthPicker reference={reference} basePath="/compras" />
       </AppHeader>
@@ -79,12 +79,12 @@ export default async function ComprasPage({
       <Card>
         <SectionTitle
           title={`Compras de ${monthLabel}`}
-          description={`${transactions.length} compra(s) com parcela neste mês`}
+          description={`${transactions.length} compra(s) lançada(s) neste mês`}
         />
 
         {transactions.length === 0 ? (
           <EmptyState
-            title={`Nenhuma compra com parcela em ${monthLabel}`}
+            title={`Nenhuma compra em ${monthLabel}`}
             description="Use o seletor de mês para ver outros meses ou cadastre uma compra acima."
           />
         ) : (
@@ -110,8 +110,11 @@ export default async function ComprasPage({
                         {transaction.card_id
                           ? (cardName.get(transaction.card_id) ?? 'Cartão')
                           : 'Sem cartão'}{' '}
-                        · {transaction.installments_count}x · {installmentRange(list)} · {paid}/
-                        {list.length} pagas
+                        ·{' '}
+                        {transaction.installments_count > 1
+                          ? `${transaction.installments_count}x`
+                          : 'à vista'}{' '}
+                        · {installmentRange(list)} · {paid}/{list.length} pagas
                       </p>
                     </div>
 

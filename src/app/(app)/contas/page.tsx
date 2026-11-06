@@ -35,7 +35,7 @@ function createFields(): EntityField[] {
       label: 'Valor',
       type: 'money',
       required: true,
-      hint: 'Valor estimado (fixa) ou valor da parcela (parcelada)',
+      hint: 'Valor estimado da conta — se for parcelada, o valor de cada parcela',
     },
     {
       name: 'installments_count',
@@ -59,16 +59,17 @@ function createFields(): EntityField[] {
     },
     {
       name: 'reference_month',
-      label: 'Mês da parcela',
+      label: 'Mês',
       type: 'select',
       defaultValue: NOW.month,
       options: monthSelectOptions(),
       required: true,
       showWhen: { field: 'kind', equals: ['installment'] },
+      hint: 'Mês de referência da conta',
     },
     {
       name: 'reference_year',
-      label: 'Ano da parcela',
+      label: 'Ano',
       type: 'select',
       defaultValue: NOW.year,
       options: yearSelectOptions(),

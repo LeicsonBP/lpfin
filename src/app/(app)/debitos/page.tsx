@@ -21,10 +21,10 @@ const FIELDS: EntityField[] = [
   { name: 'name', label: 'Nome do débito', required: true, placeholder: 'Empréstimo, consignado...' },
   {
     name: 'amount',
-    label: 'Valor da parcela',
+    label: 'Valor',
     type: 'money',
     required: true,
-    hint: 'Valor descontado por mês',
+    hint: 'Valor descontado por mês — se parcelado, o valor de cada parcela',
   },
   {
     name: 'kind',
@@ -58,15 +58,16 @@ const FIELDS: EntityField[] = [
   },
   {
     name: 'reference_month',
-    label: 'Mês da parcela',
+    label: 'Mês',
     type: 'select',
     defaultValue: now.month,
     options: monthSelectOptions(),
     required: true,
+    hint: 'Mês de referência do débito',
   },
   {
     name: 'reference_year',
-    label: 'Ano inicial',
+    label: 'Ano',
     type: 'select',
     defaultValue: now.year,
     options: yearSelectOptions(),

@@ -11,7 +11,7 @@ import { formatBRL, monthSelectOptions, yearSelectOptions } from '@/lib/format';
 import { parseMoneyInput } from '@/lib/money';
 import type { ActionResult, Card as CardModel, MonthRef } from '@/lib/types';
 
-import { PurchaseLineRow, type PurchaseLineDraft } from './purchase-line-row';
+import { PurchaseLineRow, countValue, type PurchaseLineDraft } from './purchase-line-row';
 
 const NOW = currentMonth();
 
@@ -30,7 +30,14 @@ export function BatchPurchaseForm({
   const [startMonth, setStartMonth] = useState(String(initialMonth?.month ?? NOW.month));
   const [startYear, setStartYear] = useState(String(initialMonth?.year ?? NOW.year));
   const [lines, setLines] = useState<PurchaseLineDraft[]>([
-    { key: 1, description: '', installment_amount: '', installments_count: 1, current_installment: 1 },
+    {
+      key: 1,
+      description: '',
+      kind: 'cash',
+      amount: '',
+      installments_count: '1',
+      current_installment: '1',
+    },
   ]);
   const [state, formAction] = useActionState<ActionResult | undefined, FormData>(
     createPurchasesBatchAction,
@@ -47,9 +54,10 @@ export function BatchPurchaseForm({
       {
         key: Math.max(0, ...current.map((line) => line.key)) + 1,
         description: '',
-        installment_amount: '',
-        installments_count: 1,
-        current_installment: 1,
+        kind: 'cash',
+        amount: '',
+        installments_count: '1',
+        current_installment: '1',
       },
     ]);
   }
@@ -64,16 +72,19 @@ export function BatchPurchaseForm({
     start_month: Number(startMonth),
     lines: lines.map((line) => ({
       description: line.description,
-      installment_amount: line.installment_amount,
-      installments_count: Number(line.installments_count) || 1,
-      current_installment: Number(line.current_installment) || 1,
+      installment_amount: line.amount,
+      installments_count:
+        line.kind === 'installment' ? countValue(line.installments_count) : 1,
+      current_installment:
+        line.kind === 'installment' ? countValue(line.current_installment) : 1,
     })),
   });
 
   const batchCents = lines.reduce((total, line) => {
-    const value = parseMoneyInput(line.installment_amount);
+    const value = parseMoneyInput(line.amount);
     const amount = Number.isFinite(value) ? value : 0;
-    return total + Math.round(amount * 100) * (Number(line.installments_count) || 1);
+    const count = line.kind === 'installment' ? countValue(line.installments_count) : 1;
+    return total + Math.round(amount * 100) * count;
   }, 0);
 
   return (
@@ -81,7 +92,7 @@ export function BatchPurchaseForm({
       <input type="hidden" name="payload" value={payload} />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Field label="Cartão" htmlFor="batch-card" hint="Um cartão por lote">
+        <Field label="Cartão" htmlFor="batch-card" hint="Cartão destas compras">
           <Select id="batch-card" value={cardId} onChange={(event) => setCardId(event.target.value)}>
             <option value="">Sem cartão</option>
             {cards.map((card) => (
@@ -92,7 +103,7 @@ export function BatchPurchaseForm({
           </Select>
         </Field>
 
-        <Field label="Mês da parcela" htmlFor="batch-month" hint="competência da parcela atual">
+        <Field label="Mês" htmlFor="batch-month" hint="Mês da compra (ou da parcela atual)">
           <Select
             id="batch-month"
             value={startMonth}
