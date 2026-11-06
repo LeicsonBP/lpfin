@@ -90,7 +90,7 @@ export function SurfaceSelect({ initial }: { initial: SurfaceStyle }) {
       ) : (
         <p className="text-[11px] text-ink-muted">
           {current === 'glass'
-            ? 'Vidro ativo: cards translúcidos com desfoque. Se o sistema pedir menos transparência, os cards voltam a ser sólidos.'
+            ? 'Vidro ativo: cards translúcidos com desfoque suave. Se o sistema pedir menos transparência, os cards voltam a ser sólidos.'
             : 'Sólido ativo: máxima legibilidade dos valores.'}
         </p>
       )}

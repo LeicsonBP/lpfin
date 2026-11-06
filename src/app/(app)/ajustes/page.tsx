@@ -30,7 +30,7 @@ export default async function AjustesPage() {
       <Card>
         <SectionTitle
           title="Estilo dos cards"
-          description="Sólido (opaco) ou vidro com desfoque — fica salvo na sua conta"
+          description="Sólido (opaco) ou vidro com desfoque — vale neste dispositivo e fica salvo na conta"
         />
         <SurfaceSelect initial={surface} />
       </Card>

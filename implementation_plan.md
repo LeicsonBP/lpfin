@@ -238,6 +238,13 @@ tabela `card_payments` (+RLS +trigger), colunas `series_id`/`is_recurring` em `i
 ### Validação
 
 - `npx tsc --noEmit` limpo · `npm run lint` (exit 0) · `npm run build` (compilado) · `npm test` (14 testes).
-- Migration pendente de aplicação no projeto Supabase: `20250101000600_surface_style.sql` (`npm run db:migrate`).
+- Estilo dos cards: cookie `lpfin-surface` (resposta imediata, sem depender do banco) + sincronização em
+  `user_settings.surface_style`. Smoke test: `/login` responde `data-surface="solid"` e, com o cookie
+  `lpfin-surface=glass`, `data-surface="glass"`.
+- Migration `20250101000600_surface_style.sql` (com `notify pgrst, 'reload schema'`) ainda precisa ser
+  aplicada no projeto Supabase (`npm run db:migrate`) para a preferência valer entre dispositivos — até
+  lá o cookie mantém tudo funcionando.
+- Vidro suavizado: `--glass-bg` de 62% → 74% de opacidade, brilho especular 0.55 → 0.26, borda interna
+  0.85 → 0.5 e auroras do shell de 45%/42%/70% → 30%/26%/42%.
 
 

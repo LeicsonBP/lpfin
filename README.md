@@ -143,13 +143,15 @@ src/
 - **Cores do cartão**: cada cartão tem uma cor que pinta a barra de gasto, o fundo do card, a borda
   de "fatura paga" e o checkbox.
 - **Estilo dos cards (liquid glass)**: em **Ajustes** o usuário alterna entre **Sólido** e **Vidro**.
-  A escolha vai para `user_settings.surface_style` e o `RootLayout` aplica
-  `<html data-surface="glass">`; o CSS (`globals.css`, fora dos `@layer` para vencer os utilitários)
-  troca `bg-surface` por fundo translúcido + `backdrop-filter: blur() saturate()`, brilho especular
-  no topo e sombra suave. O shell ganha um fundo de "auroras" (radial gradients) para o desfoque ter
-  o que mostrar, e `@media (prefers-reduced-transparency: reduce)` devolve os cards sólidos.
-  Ficam em vidro apenas os containers (cards de seção, sidebar, bottom-nav e popovers) — linhas de
-  dados e campos de formulário continuam opacos para preservar o contraste.
+  A escolha é gravada no cookie `lpfin-surface` (vale na hora, como o tema) e sincronizada em
+  `user_settings.surface_style`; o `RootLayout` aplica `<html data-surface="glass">` (cookie tem
+  precedência, o valor da conta serve de padrão em outros dispositivos). O CSS (`globals.css`, fora
+  dos `@layer` para vencer os utilitários) troca `bg-surface` por fundo translúcido +
+  `backdrop-filter: blur() saturate()`, brilho especular suave no topo e sombra leve. O shell ganha
+  um fundo de "auroras" (radial gradients) para o desfoque ter o que mostrar, e
+  `@media (prefers-reduced-transparency: reduce)` devolve os cards sólidos. Ficam em vidro apenas os
+  containers (cards de seção, sidebar, bottom-nav e popovers) — linhas de dados e campos de
+  formulário continuam opacos para preservar o contraste.
 - **Motor de parcelamento** (`lib/finance.ts`): `buildInstallmentPlan` divide o total em centavos
   (a sobra vai para as primeiras parcelas — `100,00 / 3 = 33,34 + 33,33 + 33,33`) e cria uma
   linha em `installments` por mês.

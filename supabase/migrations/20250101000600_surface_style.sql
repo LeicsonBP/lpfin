@@ -10,3 +10,7 @@ alter table public.user_settings
 alter table public.user_settings
   add constraint user_settings_surface_style_check
   check (surface_style in ('solid', 'glass'));
+
+-- faz o PostgREST enxergar a coluna nova sem esperar o cache expirar
+-- (evita "Could not find the 'surface_style' column ... in the schema cache")
+notify pgrst, 'reload schema';

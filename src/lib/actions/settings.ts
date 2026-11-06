@@ -1,8 +1,10 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
 
 import { DEFAULT_ACCENT, safeHex } from '@/lib/color';
+import { SURFACE_COOKIE } from '@/lib/cookies';
 import { requireUser } from '@/lib/data/session';
 import { safeSurfaceStyle } from '@/lib/surface';
 import type { ActionResult } from '@/lib/types';
@@ -45,10 +47,18 @@ export async function resetAccentColorAction(): Promise<void> {
 
 /**
  * Salva o estilo dos cards: 'solid' (padrão) ou 'glass' (liquid glass).
- * Vale em qualquer dispositivo (fica salvo na conta).
+ * Grava um cookie (vale na hora, neste dispositivo — como o tema) e tenta
+ * sincronizar com a conta. Se a coluna `surface_style` ainda não existir no
+ * banco (migration pendente), o cookie mantém a preferência funcionando.
  */
 export async function setSurfaceStyleAction(style: string): Promise<ActionResult> {
   const surface = safeSurfaceStyle(style);
+
+  (await cookies()).set(SURFACE_COOKIE, surface, {
+    path: '/',
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: 'lax',
+  });
 
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from('user_settings').upsert(
@@ -56,8 +66,14 @@ export async function setSurfaceStyleAction(style: string): Promise<ActionResult
     { onConflict: 'user_id' },
   );
 
-  if (error) return dbFail(error.message);
-
   revalidatePath('/', 'layout');
-  return ok(surface === 'glass' ? 'Cards em vidro.' : 'Cards sólidos.');
+
+  const label = surface === 'glass' ? 'Cards em vidro.' : 'Cards sólidos.';
+
+  if (error) {
+    // Coluna ausente (schema cache/migration pendente): segue valendo o cookie.
+    return ok(`${label} Preferência salva neste dispositivo.`);
+  }
+
+  return ok(label);
 }
