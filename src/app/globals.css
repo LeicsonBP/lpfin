@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+
+  --color-brand-50: #eefbf6;
+  --color-brand-100: #d5f5e8;
+  --color-brand-200: #ade9d3;
+  --color-brand-300: #79d6b8;
+  --color-brand-400: #45bd99;
+  --color-brand-500: #21a280;
+  --color-brand-600: #118268;
+  --color-brand-700: #0e6855;
+  --color-brand-800: #0f5346;
+  --color-brand-900: #0e443b;
+
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f6f8;
+  --color-ink: #111827;
+  --color-ink-muted: #5b6472;
+  --color-line: #e3e8ee;
+  --color-positive: #0f7b4f;
+  --color-positive-soft: #e6f6ed;
+  --color-negative: #b42318;
+  --color-negative-soft: #fdeceb;
+  --color-warning: #b54708;
+  --color-warning-soft: #fef4e6;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-surface-muted);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  :where(button, input, select, textarea) {
+    font: inherit;
+  }
+
+  /* valores monetários sempre alinhados */
+  .money {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}

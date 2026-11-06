@@ -1,0 +1,119 @@
+import { z } from 'zod';
+
+const monthSchema = z.coerce
+  .number()
+  .int('Mês inválido')
+  .min(1, 'Mês deve estar entre 1 e 12')
+  .max(12, 'Mês deve estar entre 1 e 12');
+
+const yearSchema = z.coerce
+  .number()
+  .int('Ano inválido')
+  .min(2000, 'Ano inválido')
+  .max(2100, 'Ano inválido');
+
+const moneySchema = z.coerce
+  .number()
+  .min(0, 'O valor não pode ser negativo')
+  .max(99_999_999.99, 'Valor muito alto');
+
+const daySchema = z.coerce
+  .number()
+  .int('Dia inválido')
+  .min(1, 'Dia deve estar entre 1 e 31')
+  .max(31, 'Dia deve estar entre 1 e 31');
+
+const nameSchema = z
+  .string()
+  .trim()
+  .min(1, 'Informe um nome')
+  .max(80, 'Use no máximo 80 caracteres');
+
+export const monthRefSchema = z.object({
+  year: yearSchema,
+  month: monthSchema,
+});
+
+export const cardSchema = z.object({
+  name: nameSchema,
+  credit_limit: moneySchema,
+  closing_day: daySchema,
+  due_day: daySchema,
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, 'Use uma cor no formato #RRGGBB')
+    .default('#0e6855'),
+  is_active: z.boolean().default(true),
+});
+
+export const fixedBillSchema = z.object({
+  name: nameSchema,
+  due_day: daySchema,
+  base_value: moneySchema,
+  category: z.string().trim().max(40, 'Use no máximo 40 caracteres').optional(),
+  is_active: z.boolean().default(true),
+});
+
+export const fixedBillEntrySchema = z.object({
+  fixed_bill_id: z.string().uuid('Conta fixa inválida'),
+  reference_year: yearSchema,
+  reference_month: monthSchema,
+  amount: moneySchema,
+});
+
+export const incomeSchema = z.object({
+  description: nameSchema,
+  amount: moneySchema,
+  reference_year: yearSchema,
+  reference_month: monthSchema,
+  kind: z.enum(['salary', 'extra', 'other']).default('salary'),
+  is_received: z.boolean().default(false),
+});
+
+export const payrollDeductionSchema = z
+  .object({
+    name: nameSchema,
+    amount: moneySchema,
+    kind: z.enum(['fixed', 'installment']).default('fixed'),
+    installments_count: z.coerce.number().int().min(1).max(120).default(1),
+    reference_year: yearSchema,
+    reference_month: monthSchema,
+  })
+  .refine((data) => data.kind === 'fixed' || data.installments_count >= 1, {
+    message: 'Informe o número de parcelas',
+    path: ['installments_count'],
+  });
+
+export const transactionSchema = z.object({
+  description: nameSchema,
+  card_id: z
+    .string()
+    .uuid('Cartão inválido')
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
+  category: z.string().trim().min(1, 'Informe a categoria').max(40).default('outros'),
+  total_amount: moneySchema,
+  installments_count: z.coerce
+    .number()
+    .int('Número de parcelas inválido')
+    .min(1, 'Mínimo de 1 parcela')
+    .max(120, 'Máximo de 120 parcelas'),
+  purchase_date: z.coerce.date(),
+  /** Mês da primeira parcela (respeita o fechamento do cartão) */
+  start_year: yearSchema,
+  start_month: monthSchema,
+  is_subscription: z.boolean().default(false),
+});
+
+export const loginSchema = z.object({
+  email: z.string().trim().email('Informe um e-mail válido'),
+  password: z.string().min(8, 'A senha precisa de ao menos 8 caracteres'),
+});
+
+export type CardInput = z.infer<typeof cardSchema>;
+export type FixedBillInput = z.infer<typeof fixedBillSchema>;
+export type FixedBillEntryInput = z.infer<typeof fixedBillEntrySchema>;
+export type IncomeInput = z.infer<typeof incomeSchema>;
+export type PayrollDeductionInput = z.infer<typeof payrollDeductionSchema>;
+export type TransactionInput = z.infer<typeof transactionSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
