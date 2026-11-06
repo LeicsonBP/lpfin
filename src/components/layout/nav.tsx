@@ -1,12 +1,4 @@
-import {
-  CalendarRange,
-  CreditCard,
-  LayoutDashboard,
-  LogOut,
-  Receipt,
-  TrendingUp,
-  Wallet,
-} from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import Link from 'next/link';
 
 import { LpMark, LpWordmark } from '@/components/brand/logo';
@@ -14,15 +6,8 @@ import { ThemeSelect } from '@/components/ui/theme-select';
 import { signOutAction } from '@/lib/actions/auth';
 import type { Theme } from '@/lib/theme';
 
-const NAV_ITEMS = [
-  { href: '/mes', label: 'Mês', icon: CalendarRange },
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/compras', label: 'Compras', icon: Receipt },
-  { href: '/cartoes', label: 'Cartões', icon: CreditCard },
-  { href: '/contas-fixas', label: 'Contas fixas', icon: Wallet },
-  { href: '/ganhos', label: 'Ganhos', icon: TrendingUp },
-  { href: '/debitos', label: 'Folha', icon: Receipt },
-] as const;
+import { MobileMenu } from './mobile-menu';
+import { MOBILE_BAR_ITEMS, NAV_ITEMS } from './nav-items';
 
 export function SideNav({ theme }: { theme: Theme }) {
   return (
@@ -66,7 +51,7 @@ export function SideNav({ theme }: { theme: Theme }) {
   );
 }
 
-/** Barra superior exibida apenas no mobile (logo + tema). */
+/** Barra superior exibida apenas no mobile (logo + menu com tema e sair). */
 export function MobileTopBar({ theme }: { theme: Theme }) {
   return (
     <div className="mb-4 flex items-center justify-between gap-3 md:hidden">
@@ -74,7 +59,7 @@ export function MobileTopBar({ theme }: { theme: Theme }) {
         <LpMark className="h-7 w-auto text-ink" />
         <span className="text-base font-semibold tracking-tight text-ink">LPFIN</span>
       </div>
-      <ThemeSelect initialTheme={theme} className="w-28" />
+      <MobileMenu theme={theme} />
     </div>
   );
 }
@@ -83,7 +68,7 @@ export function MobileNav() {
   return (
     <nav className="safe-bottom fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 backdrop-blur md:hidden">
       <ul className="grid grid-cols-5">
-        {NAV_ITEMS.slice(0, 5).map((item) => (
+        {MOBILE_BAR_ITEMS.map((item) => (
           <li key={item.href}>
             <Link
               href={item.href}

@@ -99,7 +99,7 @@ src/
 ├─ app/
 │  ├─ (auth)/login              # login Google + e-mail/senha
 │  ├─ auth/callback             # troca do code do OAuth pela sessão
-│  ├─ (app)/layout.tsx          # shell autenticado (sidebar/bottom-nav)
+│  ├─ (app)/layout.tsx          # shell autenticado (sidebar no desktop; menu no topo + bottom-nav no mobile)
 │  ├─ (app)/mes                 # VISÃO MENSAL
 │  ├─ (app)/dashboard           # histórico + previsão
 │  ├─ (app)/compras             # transactions + parcelas
