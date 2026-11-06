@@ -4,17 +4,14 @@ import { LogOut, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
-import { ThemeSelect } from '@/components/ui/theme-select';
 import { signOutAction } from '@/lib/actions/auth';
-import type { Theme } from '@/lib/theme';
 
 import { MOBILE_MENU_ITEMS } from './nav-items';
-
 /**
- * Menu do canto superior direito (apenas mobile): tema, telas que não cabem na
+ * Menu do canto superior direito (apenas mobile): telas que não cabem na
  * barra inferior e a opção de sair.
  */
-export function MobileMenu({ theme }: { theme: Theme }) {
+export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -52,15 +49,8 @@ export function MobileMenu({ theme }: { theme: Theme }) {
 
       {open ? (
         <div className="glass-pop absolute right-0 top-11 z-40 w-60 max-w-[calc(100vw-1.5rem)] rounded-2xl border border-line bg-surface p-3 shadow-xl">
-          <div className="space-y-1">
-            <span className="block px-1 text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
-              Tema
-            </span>
-            <ThemeSelect initialTheme={theme} />
-          </div>
-
           {MOBILE_MENU_ITEMS.length > 0 ? (
-            <nav className="mt-3 space-y-1 border-t border-line pt-2">
+            <nav className="space-y-1">
               {MOBILE_MENU_ITEMS.map((item) => (
                 <Link
                   key={item.href}

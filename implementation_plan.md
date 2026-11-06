@@ -251,6 +251,12 @@ tabela `card_payments` (+RLS +trigger), colunas `series_id`/`is_recurring` em `i
   usar `glass-card`; dentro do card do balanço recebe `flat` para não empilhar desfoque.
 - Popovers de cor (cartão e destaque) ficavam atrás dos cards seguintes porque `backdrop-filter` cria
   *stacking context*; corrigido com `.glass-card:has(.glass-pop) { position: relative; z-index: 30 }`.
+  Além disso, popover **dentro** de card de vidro (`[data-surface='glass'] .glass-card .glass-pop`)
+  ficou quase sólido (97%) sem `backdrop-filter` — o desfoque empilhado deixava o fundo lavado.
+- **Tema claro removido**: o app é dark-only. `getTheme`/`lib/theme.ts`, `ThemeSelect`,
+  `THEME_COOKIE` e a opção "Sistema" foram apagados; `RootLayout` fixa `<html class="dark">`,
+  `viewport` usa `colorScheme: 'dark'` + `themeColor: '#0a1014'` e o manifest acompanha. Ajustes
+  mantém a personalização (estilo dos cards + cor de destaque).
 - Ambiente do vidro reescrito: `--ambient-glows` (3 brilhos derivados do accent) + `--ambient-top`
   (accent claro) → `--ambient-dark` (`#0b1013` no claro, `#05080a` no escuro). A classe `app-ambient`
   (só no layout autenticado) aplica o degradê accent → quase preto; o login mantém só os brilhos para

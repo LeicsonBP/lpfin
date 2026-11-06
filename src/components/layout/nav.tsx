@@ -2,14 +2,12 @@ import { LogOut } from 'lucide-react';
 import Link from 'next/link';
 
 import { LpMark, LpWordmark } from '@/components/brand/logo';
-import { ThemeSelect } from '@/components/ui/theme-select';
 import { signOutAction } from '@/lib/actions/auth';
-import type { Theme } from '@/lib/theme';
 
 import { MobileMenu } from './mobile-menu';
 import { MOBILE_BAR_ITEMS, NAV_ITEMS } from './nav-items';
 
-export function SideNav({ theme }: { theme: Theme }) {
+export function SideNav() {
   return (
     <aside className="glass-chrome hidden w-60 shrink-0 border-r border-line bg-surface px-3 py-4 md:block">
       <div className="mb-6 px-2">
@@ -30,13 +28,6 @@ export function SideNav({ theme }: { theme: Theme }) {
       </nav>
 
       <div className="mt-6 space-y-2 px-1">
-        <div className="space-y-1">
-          <span className="px-1 text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
-            Tema
-          </span>
-          <ThemeSelect initialTheme={theme} />
-        </div>
-
         <form action={signOutAction}>
           <button
             type="submit"
@@ -51,15 +42,15 @@ export function SideNav({ theme }: { theme: Theme }) {
   );
 }
 
-/** Barra superior exibida apenas no mobile (logo + menu com tema e sair). */
-export function MobileTopBar({ theme }: { theme: Theme }) {
+/** Barra superior exibida apenas no mobile (logo + menu com telas e sair). */
+export function MobileTopBar() {
   return (
     <div className="mb-4 flex items-center justify-between gap-3 md:hidden">
       <div className="flex items-center gap-2">
         <LpMark className="h-7 w-auto text-ink" />
         <span className="text-base font-semibold tracking-tight text-ink">LPFIN</span>
       </div>
-      <MobileMenu theme={theme} />
+      <MobileMenu />
     </div>
   );
 }

@@ -3,7 +3,6 @@ import './globals.css';
 
 import { AccentStyle } from '@/components/theme/accent-style';
 import { getUserSettings } from '@/lib/data/settings';
-import { getTheme } from '@/lib/theme';
 
 export const metadata: Metadata = {
   title: 'LPFIN — Controle Financeiro Pessoal',
@@ -13,33 +12,25 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: 'LPFIN',
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
   },
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#0e6855' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a1014' },
-  ],
+  colorScheme: 'dark',
+  themeColor: '#0a1014',
 };
 
+/** Tema escuro é o único tema do app (sem seletor claro/sistema). */
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const theme = await getTheme();
   const { accent, surface } = await getUserSettings();
-  const isDark = theme === 'dark';
 
   return (
-    <html
-      lang="pt-BR"
-      className={isDark ? 'dark' : undefined}
-      data-surface={surface}
-      suppressHydrationWarning
-    >
+    <html lang="pt-BR" className="dark" data-surface={surface} suppressHydrationWarning>
       <body className="min-h-dvh antialiased">
         <AccentStyle accent={accent} />
         {children}

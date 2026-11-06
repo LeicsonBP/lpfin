@@ -258,6 +258,20 @@
     );
 }
 
+/* Popover aberto DENTRO de um card de vidro (seletor de cores): o desfoque
+   empilhado deixava o fundo lavado, então aqui ele fica quase sólido — como
+   o menu e o seletor de datas, que desfocam a página de verdade. */
+[data-surface='glass'] .glass-card .glass-pop {
+  background-color: color-mix(in srgb, var(--surface) 97%, transparent);
+  background-image: var(--glass-sheen);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.25),
+    0 18px 40px -18px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 var(--glass-edge);
+}
+
 /* Popovers (cores do cartão/cor de destaque) dentro de um card: o
    backdrop-filter do vidro cria um stacking context e o card seguinte
    passava por cima do popover. Quem contém um popover aberto sobe. */

@@ -114,7 +114,7 @@ src/
 │  ├─ (app)/contas              # CRUD de contas (fixas e parceladas)
 │  ├─ (app)/ganhos              # receitas do mês
 │  └─ (app)/debitos             # débitos em folha (fixos/parcelados)
-│  └─ (app)/ajustes             # tema + cor de destaque (salva na conta)
+│  └─ (app)/ajustes             # cor de destaque + estilo dos cards (salvos na conta)
 ├─ components/                  # ui, layout, monthly, forms, charts
 └─ lib/
    ├─ finance.ts                # MOTOR FINANCEIRO (puro, testado)
@@ -172,8 +172,9 @@ src/
 
 ### Ajustes da segunda rodada (v2)
 
-- **Tema claro/escuro** com persistência em `localStorage` e paleta escura de maior contraste
-  (`ThemeToggle`, tokens em `globals.css` via `@theme inline` + custom variant `dark`).
+- **Tema escuro fixo**: o app usa apenas o tema escuro (sem seletor Claro/Sistema). Os tokens ficam
+  em `globals.css` (`:root` + `.dark`, sempre aplicado em `<html class="dark">`, `@theme inline` +
+  custom variant `dark`) e a paleta escura tem tons mais claros para contraste.
 - **Identidade visual**: monograma **LP** (`src/components/brand/logo.tsx`) usado no login,
   na sidebar e no favicon (`src/app/icon.svg`).
 - **Seletor de competência** (`MonthPicker`): setas + popover com grade de meses e navegação por ano.
