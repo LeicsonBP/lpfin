@@ -137,8 +137,12 @@ export default async function CartoesPage({
 
                       <div className="h-1.5 overflow-hidden rounded-full bg-line">
                         <div
-                          className={`h-full rounded-full ${summary.usedPercent > 85 ? 'bg-negative' : 'bg-brand-600'}`}
-                          style={{ width: `${summary.usedPercent}%` }}
+                          className={`h-full rounded-full ${summary.usedPercent > 85 ? 'bg-negative' : ''}`}
+                          style={{
+                            width: `${summary.usedPercent}%`,
+                            backgroundColor:
+                              summary.usedPercent > 85 ? undefined : card.color,
+                          }}
                         />
                       </div>
 

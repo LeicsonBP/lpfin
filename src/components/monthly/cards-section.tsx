@@ -1,8 +1,10 @@
 import { clsx } from 'clsx';
 import { Check } from 'lucide-react';
+import type { CSSProperties } from 'react';
 
 import { Card, EmptyState, SectionTitle } from '@/components/ui/kit';
 import { toggleCardPaymentAction } from '@/lib/actions/cards';
+import { hexWithAlpha } from '@/lib/color';
 import { formatBRL } from '@/lib/format';
 import { groupByCard } from '@/lib/finance';
 import type {
@@ -82,7 +84,13 @@ export function CardsSection({
             return (
               <div
                 key={card.id}
-                className={clsx('rounded-xl border p-3', isPaid ? 'border-positive' : 'border-line')}
+                style={
+                  {
+                    '--card-color': card.color,
+                    ...(isPaid ? { borderColor: card.color } : {}),
+                  } as CSSProperties
+                }
+                className={clsx('rounded-xl border p-3', isPaid ? 'shadow-xs' : 'border-line')}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -92,6 +100,11 @@ export function CardsSection({
                         isPaid ? 'text-ink-muted line-through' : 'text-ink',
                       )}
                     >
+                      <span
+                        aria-hidden
+                        className="size-2 shrink-0 rounded-full"
+                        style={{ backgroundColor: card.color }}
+                      />
                       {card.name}
                       {!card.is_active ? (
                         <span className="text-[10px] font-medium uppercase text-ink-muted">
@@ -119,11 +132,19 @@ export function CardsSection({
                         aria-label={
                           isPaid ? 'Marcar fatura como pendente' : 'Marcar fatura como paga'
                         }
+                        style={
+                          isPaid
+                            ? {
+                                borderColor: card.color,
+                                color: card.color,
+                                backgroundColor: hexWithAlpha(card.color, 0.16),
+                              }
+                            : undefined
+                        }
                         className={clsx(
                           'inline-flex size-7 items-center justify-center rounded-full border transition',
-                          isPaid
-                            ? 'border-positive bg-positive-soft text-positive'
-                            : 'border-line text-ink-muted hover:border-brand-400 hover:text-brand-700',
+                          !isPaid &&
+                            'border-line text-ink-muted hover:border-[color:var(--card-color)] hover:text-[color:var(--card-color)]',
                         )}
                       >
                         <Check className="size-3.5" />
@@ -134,8 +155,8 @@ export function CardsSection({
 
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-muted">
                   <div
-                    className="h-full rounded-full bg-brand-600"
-                    style={{ width: `${usedPercent}%` }}
+                    className="h-full rounded-full transition-all"
+                    style={{ width: `${usedPercent}%`, backgroundColor: card.color }}
                   />
                 </div>
 
