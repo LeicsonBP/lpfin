@@ -8,34 +8,35 @@
 :root {
   color-scheme: light;
 
-  --surface: #ffffff;
-  --surface-muted: #f4f6f8;
-  --ink: #111827;
-  --ink-muted: #5b6472;
-  --line: #e3e8ee;
+  /* tema claro em verde bem claro (cards quase brancos, fundo verde suave) */
+  --surface: #f7fcf9;
+  --surface-muted: #e7f3ec;
+  --ink: #0f1f19;
+  --ink-muted: #52705f;
+  --line: #d2e5da;
 
   --primary: #0e6855;
   --primary-hover: #0f5346;
-  --primary-soft: #eefbf6;
+  --primary-soft: #ddf1e6;
   --on-primary: #ffffff;
 
-  --brand-50: #eefbf6;
-  --brand-100: #d5f5e8;
-  --brand-200: #ade9d3;
-  --brand-300: #79d6b8;
-  --brand-400: #45bd99;
-  --brand-500: #21a280;
+  --brand-50: #e9f7ef;
+  --brand-100: #d3f0e0;
+  --brand-200: #aee3c9;
+  --brand-300: #7ed1ae;
+  --brand-400: #4bb890;
+  --brand-500: #229b75;
   --brand-600: #118268;
   --brand-700: #0e6855;
   --brand-800: #0f5346;
   --brand-900: #0e443b;
 
   --positive: #0f7b4f;
-  --positive-soft: #e6f6ed;
+  --positive-soft: #d8f3e2;
   --negative: #b42318;
-  --negative-soft: #fdeceb;
+  --negative-soft: #fde8e6;
   --warning: #b54708;
-  --warning-soft: #fef4e6;
+  --warning-soft: #fdf1de;
 }
 
 /* ------------------------------------------------------------------------- */

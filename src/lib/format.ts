@@ -92,16 +92,3 @@ export function yearSelectOptions(span = 2): { value: string; label: string }[] 
   });
 }
 
-/** Categorias sugeridas para compras. */
-export const TRANSACTION_CATEGORIES = [
-  'outros',
-  'compras',
-  'assinaturas',
-  'moradia',
-  'transporte',
-  'saúde',
-  'educação',
-  'lazer',
-  'presentes',
-] as const;
-

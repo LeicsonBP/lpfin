@@ -183,12 +183,112 @@ src/
   opção **“Encerrar recorrência”**: escolhe-se o mês e o sistema remove dali para frente,
   preservando todo o histórico anterior.
 
+## Arquitetura e convenções
+
+Revisão feita seguindo o padrão do App Router (Next 16) e as convenções usuais da comunidade:
+
+- **Rotas** em `src/app` com *route groups*: `(auth)` para páginas públicas e `(app)` para a área
+  autenticada (o layout do grupo chama `requireUser()` e redireciona quem não tem sessão).
+- **Mutações** somente via **Server Actions** (`'use server'`) em `src/lib/actions/*`; nenhum
+  endpoint REST manual e toda escrita passa por validação zod (`src/lib/schemas.ts`).
+- **Leitura de dados** isolada em `src/lib/data/*` (server-only via `@/lib/supabase/server`, que
+  importa `server-only`), sem acesso direto ao Supabase dentro dos componentes.
+- **Domínio puro** em `src/lib` (`finance.ts`, `money.ts`, `format.ts`, `types.ts`): sem React, com
+  testes vitest colocados ao lado do código (`finance.test.ts`).
+- **Componentes por responsabilidade**: `ui/` (design system), `layout/`, `monthly/`, `forms/`,
+  `charts/` e `brand/`. Client Components recebem dados por props; nunca importam `lib/data`.
+- **Sessão/rotas protegidas** em `src/proxy.ts` (convenção do Next 16 que substitui o
+  `middleware.ts`), usando `updateSession` do `@supabase/ssr`.
+- **Variáveis de ambiente validadas no boot**: `src/lib/env.ts` (públicas, zod) e
+  `src/lib/env.server.ts` (segredos, protegido por `server-only`). Se um Client Component importar
+  algo server-only, o build falha em vez de vazar chave.
+- **Estados de erro e carregamento**: `app/error.tsx`, `app/not-found.tsx` e
+  `app/(app)/loading.tsx` (skeleton).
+- **Estilo 100% por tokens** (`globals.css` + `@theme inline`): nenhuma cor hardcoded nos
+  componentes — é o que permite alternar tema claro/escuro (claro em verde suave, escuro com
+  acentos mais claros).
+- **Qualidade**: TypeScript `strict` + `noUncheckedIndexedAccess`, ESLint *flat config* e os
+  scripts `typecheck`, `lint`, `test` e `build`.
+
 ## Deploy na Vercel
 
-1. Importe o repositório `LeicsonBP/lpfin`.
-2. Configure as 4 variáveis de ambiente do `.env.local` em *Settings → Environment Variables*.
-3. Adicione o domínio de produção em *Supabase → Authentication → URL Configuration*
-   (`https://<app>.vercel.app/auth/callback`).
+### 1) Subir o projeto (recomendado: importar pelo painel)
+
+1. Abra <https://vercel.com/new> e entre com a conta do GitHub (`LeicsonBP`).
+2. Em **Import Git Repository**, selecione `LeicsonBP/lpfin` → **Import**.
+3. Em **Configure Project** mantenha o que a Vercel detecta:
+   - **Framework Preset**: Next.js
+   - **Root Directory**: `./`
+   - **Build Command**: `next build` · **Output**: `.next` · **Install**: `npm install`
+   - **Node.js Version**: 22.x (o `package.json` já declara `engines.node >= 20.9`)
+4. Em **Environment Variables**, cadastre as 4 variáveis (Production, Preview e Development):
+
+   | Nome | Valor |
+   |---|---|
+   | `NEXT_PUBLIC_SUPABASE_URL` | `https://hyubceacbustqjhmlovb.supabase.co` |
+   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_...` |
+   | `SUPABASE_SECRET_KEY` | `sb_secret_...` (uso restrito ao backend) |
+   | `SUPABASE_JWKS_URL` | `https://hyubceacbustqjhmlovb.supabase.co/auth/v1/.well-known/jwks.json` |
+
+5. Clique em **Deploy** (~1–2 min) e copie a URL gerada (ex.: `https://lpfin.vercel.app`).
+
+### 2) Autorizar a URL de produção no Supabase
+
+**Authentication → URL Configuration**:
+
+- **Site URL**: `https://<sua-url>.vercel.app`
+- **Redirect URLs**: adicione `https://<sua-url>.vercel.app/auth/callback`
+
+### 3) Google OAuth em produção
+
+No **Google Cloud Console → APIs & Services → Credentials → seu OAuth Client**:
+
+- **Authorized JavaScript origins**: `https://<sua-url>.vercel.app`
+- **Authorized redirect URIs**: `https://hyubceacbustqjhmlovb.supabase.co/auth/v1/callback`
+  (o mesmo do setup local; a Vercel é coberta pelo redirect do Supabase)
+
+### Alternativa: Vercel CLI
+
+```bash
+npm i -g vercel        # ou use npx vercel
+vercel login
+vercel link            # cria .vercel/project.json (já ignorado pelo git)
+vercel env add NEXT_PUBLIC_SUPABASE_URL production   # repita para as demais
+vercel --prod
+```
+
+
+### 4) Domínio personalizado
+
+1. Na Vercel: **Project → Settings → Domains → Add**.
+2. Digite o domínio (ex.: `lpfin.seudominio.com`) e confirme.
+3. A Vercel exibe os registros de DNS. No seu **registrador** (Registro.br, Cloudflare, GoDaddy…):
+
+   | Tipo | Nome | Valor |
+   |---|---|---|
+   | `CNAME` | `lpfin` (subdomínio) | `cname.vercel-dns.com` |
+   | `A` | `@` (domínio raiz) | `76.76.21.21` *(confirme o IP mostrado pela Vercel)* |
+
+   Alternativa mais simples: trocar os **nameservers** do domínio para
+   `ns1.vercel-dns.com` e `ns2.vercel-dns.com` — a Vercel passa a gerenciar todo o DNS.
+4. Aguarde a propagação (de minutos a algumas horas). O **SSL é automático** e o tráfego passa a
+   ser redirecionado para `https`.
+5. Em **Domains**, marque o novo domínio como **Primary Domain** (é ele que aparece nos redirects).
+6. **Refaça os passos 2 e 3 com o domínio final**:
+   - Supabase → **Site URL** = `https://lpfin.seudominio.com`
+   - Supabase → **Redirect URLs** += `https://lpfin.seudominio.com/auth/callback`
+   - Google Cloud → **Authorized JavaScript origins** += `https://lpfin.seudominio.com`
+
+> Sem esse sexto passo o login com Google volta para o domínio antigo (ou para `localhost`).
+
+### Checklist pós-deploy
+
+- [ ] `https://<domínio>/login` abre com o logo e o tema corretos
+- [ ] Login com Google retorna para `/mes` no domínio novo
+- [ ] Compra em lote gera as parcelas (cartão + visão mensal)
+- [ ] Fatura do cartão e contas fixas marcam como pagas
+- [ ] `/dashboard` exibe histórico e projeção
+- [ ] `npm run build`, `npm run lint` e `npm test` continuam verdes no CI local
 
 ## Backlog (fora do v1)
 

@@ -38,17 +38,3 @@ export async function updateInstallmentAmountAction(
   refresh();
   return ok('Parcela ajustada.');
 }
-
-export async function toggleInstallmentPaidAction(formData: FormData): Promise<void> {
-  const id = formData.get('id');
-  const paid = formData.get('paid') === 'true';
-  if (typeof id !== 'string' || id === '') return;
-
-  const { supabase } = await requireUser();
-  await supabase
-    .from('installments')
-    .update({ is_paid: paid, paid_at: paid ? new Date().toISOString() : null })
-    .eq('id', id);
-
-  refresh();
-}

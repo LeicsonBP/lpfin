@@ -119,17 +119,3 @@ export async function deletePayrollDeductionAction(formData: FormData): Promise<
   await supabase.from('payroll_deductions').delete().eq('id', id);
   refresh();
 }
-
-export async function togglePayrollPaidAction(formData: FormData): Promise<void> {
-  const id = formData.get('id');
-  const paid = formData.get('paid') === 'true';
-  if (typeof id !== 'string' || id === '') return;
-
-  const { supabase } = await requireUser();
-  await supabase
-    .from('payroll_deductions')
-    .update({ is_paid: paid, paid_at: paid ? new Date().toISOString() : null })
-    .eq('id', id);
-
-  refresh();
-}
