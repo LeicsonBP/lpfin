@@ -131,9 +131,11 @@ src/
   respeitada por **Mês, Compras, Cartões, Ganhos, Folha e Dashboard** — a URL (`?ano=&mes=`) tem
   precedência sobre o cookie, que tem precedência sobre o mês atual. As telas mostram o seletor no
   cabeçalho e só listam o que pertence àquele mês (em Compras, compras com parcela na competência).
-- **Cor de destaque por usuário**: em **Ajustes** (`/ajustes`) o usuário escolhe a cor de destaque,
-  salva em `user_settings` (RLS por `user_id`) e o `RootLayout` injeta os tokens derivados
-  (`--brand-50…900`, `--primary*`) para os temas claro e escuro — vale em qualquer dispositivo.
+- **Cor de destaque por usuário**: em **Ajustes** (`/ajustes`) o usuário escolhe a cor de destaque
+  em uma **paleta curada** (10 tons com bom contraste, com nome de cada cor) ou usa o botão
+  **“Restaurar padrão (verde)”**; a escolha vai para `user_settings` (RLS por `user_id`) e o
+  `RootLayout` injeta os tokens derivados (`--brand-50…900`, `--primary*`) para os temas claro e
+  escuro — vale em qualquer dispositivo.
 - **Cores do cartão**: cada cartão tem uma cor que pinta a barra de gasto, o fundo do card, a borda
   de "fatura paga" e o checkbox.
 - **Motor de parcelamento** (`lib/finance.ts`): `buildInstallmentPlan` divide o total em centavos

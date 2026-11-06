@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 
+import { DEFAULT_ACCENT, safeHex } from '@/lib/color';
 import { requireUser } from '@/lib/data/session';
-import { safeHex } from '@/lib/color';
 import type { ActionResult } from '@/lib/types';
 
 import { dbFail, ok } from './helpers';
@@ -28,4 +28,16 @@ export async function updateAccentColorAction(
 
   revalidatePath('/', 'layout');
   return ok('Cor de destaque atualizada.');
+}
+
+/** Volta a cor de destaque para o verde padrão do app. */
+export async function resetAccentColorAction(): Promise<void> {
+  const { supabase, user } = await requireUser();
+
+  await supabase.from('user_settings').upsert(
+    { user_id: user.id, accent_color: DEFAULT_ACCENT },
+    { onConflict: 'user_id' },
+  );
+
+  revalidatePath('/', 'layout');
 }

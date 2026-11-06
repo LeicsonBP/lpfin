@@ -21,6 +21,8 @@ export interface EntityField {
   min?: number | string;
   max?: number | string;
   step?: number | string;
+  /** paleta exibida quando type = 'color' */
+  palette?: 'card' | 'accent';
   /** ocupa as duas colunas no grid */
   full?: boolean;
 }
@@ -118,6 +120,7 @@ export function EntityForm({
               ) : field.type === 'color' ? (
                 <ColorPicker
                   name={field.name}
+                  palette={field.palette}
                   defaultValue={
                     typeof field.defaultValue === 'string' && field.defaultValue
                       ? field.defaultValue

@@ -3,7 +3,7 @@ import { EntityForm } from '@/components/forms/entity-form';
 import { Card, SectionTitle } from '@/components/ui/kit';
 import { ThemeSelect } from '@/components/ui/theme-select';
 import { signOutAction } from '@/lib/actions/auth';
-import { updateAccentColorAction } from '@/lib/actions/settings';
+import { updateAccentColorAction, resetAccentColorAction } from '@/lib/actions/settings';
 import { getAccentColor } from '@/lib/data/settings';
 import { requireUser } from '@/lib/data/session';
 import { getTheme } from '@/lib/theme';
@@ -38,12 +38,27 @@ export default async function AjustesPage() {
               name: 'accent_color',
               label: 'Cor de destaque',
               type: 'color',
+              palette: 'accent',
               defaultValue: accent,
               full: true,
             },
           ]}
           submitLabel="Salvar cor de destaque"
         />
+
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
+          <p className="text-[11px] text-ink-muted">
+            Paleta fixa com tons que funcionam bem nos dois temas.
+          </p>
+          <form action={resetAccentColorAction}>
+            <button
+              type="submit"
+              className="rounded-xl border border-line px-3 py-1.5 text-xs font-semibold text-ink-muted transition hover:border-brand-400 hover:text-brand-700"
+            >
+              Restaurar padrão (verde)
+            </button>
+          </form>
+        </div>
       </Card>
 
       <Card>

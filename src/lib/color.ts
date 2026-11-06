@@ -11,6 +11,38 @@ export function isHexColor(value: string): boolean {
   return HEX_PATTERN.test(value);
 }
 
+/** Paleta curada de cores de destaque (todas com bom contraste para UI). */
+export const ACCENT_PALETTE: { value: string; label: string }[] = [
+  { value: '#0e6855', label: 'Esmeralda (padrão)' },
+  { value: '#0f766e', label: 'Verde-azulado' },
+  { value: '#0369a1', label: 'Azul oceano' },
+  { value: '#1e40af', label: 'Azul índigo' },
+  { value: '#6d28d9', label: 'Violeta' },
+  { value: '#9d174d', label: 'Framboesa' },
+  { value: '#b45309', label: 'Âmbar' },
+  { value: '#3f6212', label: 'Oliva' },
+  { value: '#7c2d12', label: 'Terracota' },
+  { value: '#334155', label: 'Grafite' },
+];
+
+/** Paleta de cores dos cartões (grade completa). */
+export const CARD_PALETTE = [
+  // cinzas
+  '#000000', '#1f1f1f', '#3d3d3d', '#5c5c5c', '#787878', '#9a9a9a', '#bbbbbb', '#d7d7d7', '#e9e9e9', '#ffffff',
+  // vivas
+  '#7a0d12', '#d32f2f', '#f57c00', '#fbc02d', '#4caf50', '#00bcd4', '#2962ff', '#304ffe', '#8e24aa', '#d500f9',
+  // pastéis
+  '#f8d7da', '#ffcdd2', '#ffe0b2', '#fff9c4', '#d7f5d3', '#c8f0ef', '#cfe4fb', '#d6dcfb', '#e2d4f5', '#f6d5f0',
+  // suaves
+  '#e8a2a5', '#ef9a9a', '#ffc080', '#fff176', '#a5d6a7', '#80deea', '#90caf9', '#9fa8da', '#ce93d8', '#f48fb1',
+  // médias
+  '#c76a6d', '#e57373', '#ffb74d', '#ffd54f', '#81c784', '#4dd0e1', '#64b5f6', '#7986cb', '#ba68c8', '#f06292',
+  // profundas
+  '#a63d40', '#c62828', '#e65100', '#f9a825', '#2e7d32', '#00838f', '#1565c0', '#283593', '#6a1b9a', '#ad1457',
+  // escuras
+  '#5d1a1c', '#7b1d1d', '#8a2c00', '#7a5a00', '#1b5e20', '#004d52', '#0d3c78', '#1a237e', '#4a148c', '#880e4f',
+];
+
 /** Qualquer cor válida, ou o destaque padrão. */
 export function safeHex(value: string | null | undefined): string {
   return value && isHexColor(value) ? value.toLowerCase() : DEFAULT_ACCENT;
