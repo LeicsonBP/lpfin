@@ -125,10 +125,27 @@ RLS habilitado em todas as tabelas, com 4 policies por tabela (`select/insert/up
 
 ### Pendências do ambiente
 
-1. Aplicar as migrations no Supabase (SQL Editor, Management API com PAT ou `supabase db push`).
-2. Substituir o placeholder da `SUPABASE_SECRET_KEY` no `.env.local`.
-3. Habilitar o provider Google no Supabase e adicionar `http://localhost:3000/auth/callback` às Redirect URLs.
-4. (Opcional) atualizar o npm (`npm install -g npm@latest`).
+1. ~~Aplicar as migrations no Supabase~~ ✅ **aplicadas em 06/11/2026** via Management API
+   (7 tabelas, 7 policies RLS, view `v_month_totals`, 7 triggers `set_updated_at`).
+2. ~~Substituir o placeholder da `SUPABASE_SECRET_KEY`~~ ✅ chave real gravada no `.env.local`.
+3. ~~Habilitar o provider Google~~ ✅ `google: true` confirmado em `/auth/v1/settings`.
+4. ~~Atualizar o npm~~ ✅ npm 12.2.2 (Node 26.13.0).
+5. Conferir em *Supabase → Authentication → URL Configuration* se
+   `http://localhost:3000/auth/callback` está nas Redirect URLs (necessário para o OAuth local).
+
+### Teste de ponta a ponta executado (API real, dados removidos depois)
+
+| Verificação | Resultado |
+|---|---|
+| Criar usuário de teste (Admin API) | 200 |
+| Login e-mail/senha (`/auth/v1/token`) | 200 + `access_token` |
+| `insert cards` / `transactions` / `installments` | 201 / 201 / 3 linhas |
+| Parcelas geradas para 3x de R$ 100 | `33,34 / 33,33 / 33,33` |
+| `select` filtrado por RLS (próprio usuário) | 200 |
+| Ajuste individual de parcela (`amount = 40`, `is_adjusted`) | 200 |
+| View `v_month_totals` | 200 com totais por mês |
+| Tentativa de gravar `user_id` de terceiro | **403** (`row-level security policy`) |
+| Limpeza do usuário de teste | 200 (cascade zerou as tabelas) |
 
 ### Commits
 

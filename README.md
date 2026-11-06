@@ -55,15 +55,13 @@ arquivos, na ordem.
 **Opção B — Management API (sem instalar nada):**
 
 ```powershell
-$token = 'sbp_...'                 # Account → Access Tokens
-$ref   = '<project-ref>'
-$sql   = Get-Content .\supabase\migrations\20250101000000_init_schema.sql -Raw
-Invoke-RestMethod -Method Post `
-  -Uri "https://api.supabase.com/v1/projects/$ref/database/query" `
-  -Headers @{ Authorization = "Bearer $token" } `
-  -ContentType 'application/json' `
-  -Body (@{ query = $sql } | ConvertTo-Json -Depth 5)
+$env:SUPABASE_ACCESS_TOKEN = 'sbp_...'   # Account → Access Tokens
+npm run db:migrate                       # aplica todas as migrations em ordem
 ```
+
+O script está em [`scripts/apply-migrations.mjs`](scripts/apply-migrations.mjs), deriva o
+`project-ref` do `.env.local` (ou use `$env:SUPABASE_PROJECT_REF`) e ao final imprime as
+tabelas e a quantidade de policies RLS criadas.
 
 **Opção C — Supabase CLI:** `npx supabase login`, `npx supabase link --project-ref <ref>` e
 `npx supabase db push`.
