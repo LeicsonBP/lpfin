@@ -71,7 +71,7 @@ export function ColorPicker({
       </button>
 
       {open ? (
-        <div className="absolute left-0 top-12 z-40 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl border border-line bg-surface p-3 shadow-xl">
+        <div className="glass-pop absolute left-0 top-12 z-40 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl border border-line bg-surface p-3 shadow-xl">
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
             {isAccent ? 'Cores do tema' : 'Cores'}
           </p>

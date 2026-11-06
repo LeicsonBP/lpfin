@@ -96,7 +96,7 @@ export function MonthPicker({
       </button>
 
       {open ? (
-        <div className="absolute left-0 top-12 z-40 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl border border-line bg-surface p-3 shadow-xl lg:left-auto lg:right-0">
+        <div className="glass-pop absolute left-0 top-12 z-40 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl border border-line bg-surface p-3 shadow-xl lg:left-auto lg:right-0">
           <div className="mb-2 flex items-center justify-between">
             <button
               type="button"

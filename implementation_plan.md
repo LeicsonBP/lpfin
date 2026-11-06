@@ -224,3 +224,20 @@ tabela `card_payments` (+RLS +trigger), colunas `series_id`/`is_recurring` em `i
 - Smoke test: `/login` traz os paths do logo oficial (`M8989 23040`) e **não** o desenho antigo; `/icon.svg` responde 200.
 - `npm run build` (12 rotas) · `npm test` (14 testes) · `npm run lint` (exit 0).
 
+---
+
+## [Ajustes v5] — quinta rodada de correções
+
+| # | Pedido | Implementação |
+|---|---|---|
+| 1 | Tipo “À vista / Parcelada” por compra e rótulos neutros (Valor, Mês) | `purchase-line-row.tsx` ganhou `kind: 'cash' \| 'installment'`, campo **Tipo**, **Valor** com hint dinâmico (“valor da compra” / “valor de cada parcela”) e parcelas só quando parcelada; `batch-purchase-form.tsx` monta o payload (`amount` + `countValue`). Contas/Folha usam os mesmos rótulos. |
+| 2 | Campo de parcelas aceitava `0` fixo / zero à esquerda | Parcelas e “parcela atual” agora são **strings** com `\D` removido no `onChange` (vazio permitido enquanto digita); `countValue()` converte vazio → 1 no envio. |
+| 3 | Balanço zerado aparecia como “sobrou dinheiro” | `BalanceCard` passou a ter três tons (positivo/negativo/**neutro**), comparando em centavos (`toCents`): saldo `0` usa `text-ink`, mensagem “Entradas e saídas empatadas neste mês.” e gradiente neutro. |
+| 4 | Cards no estilo liquid glass | Tokens `--glass-*` (claro/escuro) + classes `.glass-card`, `.glass-pop`, `.glass-chrome`, `.glass-tint` e `[data-surface='glass'] .app-shell` (auroras) em `globals.css`. Seletor **Sólido / Vidro** em Ajustes (`surface-select.tsx` → `setSurfaceStyleAction`), persistido em `user_settings.surface_style` e aplicado como `<html data-surface>`; respeita `prefers-reduced-transparency`. |
+
+### Validação
+
+- `npx tsc --noEmit` limpo · `npm run lint` (exit 0) · `npm run build` (compilado) · `npm test` (14 testes).
+- Migration pendente de aplicação no projeto Supabase: `20250101000600_surface_style.sql` (`npm run db:migrate`).
+
+

@@ -53,6 +53,8 @@ As migrations ficam em [`supabase/migrations`](supabase/migrations):
 5. `20250101000400_user_settings.sql` — `user_settings` (cor de destaque por usuário).
 6. `20250101000500_fixed_bills_installments.sql` — contas fixas passam a aceitar parcelas
    (`kind`, `installments_count` no molde e `installment_number/total` no lançamento mensal).
+7. `20250101000600_surface_style.sql` — `surface_style` em `user_settings` (`solid` | `glass`),
+   o estilo dos cards escolhido em Ajustes.
 
 **Opção A — SQL Editor (manual):** abra o SQL Editor do Supabase e cole o conteúdo dos três
 arquivos, na ordem.
@@ -140,6 +142,14 @@ src/
   escuro — vale em qualquer dispositivo.
 - **Cores do cartão**: cada cartão tem uma cor que pinta a barra de gasto, o fundo do card, a borda
   de "fatura paga" e o checkbox.
+- **Estilo dos cards (liquid glass)**: em **Ajustes** o usuário alterna entre **Sólido** e **Vidro**.
+  A escolha vai para `user_settings.surface_style` e o `RootLayout` aplica
+  `<html data-surface="glass">`; o CSS (`globals.css`, fora dos `@layer` para vencer os utilitários)
+  troca `bg-surface` por fundo translúcido + `backdrop-filter: blur() saturate()`, brilho especular
+  no topo e sombra suave. O shell ganha um fundo de "auroras" (radial gradients) para o desfoque ter
+  o que mostrar, e `@media (prefers-reduced-transparency: reduce)` devolve os cards sólidos.
+  Ficam em vidro apenas os containers (cards de seção, sidebar, bottom-nav e popovers) — linhas de
+  dados e campos de formulário continuam opacos para preservar o contraste.
 - **Motor de parcelamento** (`lib/finance.ts`): `buildInstallmentPlan` divide o total em centavos
   (a sobra vai para as primeiras parcelas — `100,00 / 3 = 33,34 + 33,33 + 33,33`) e cria uma
   linha em `installments` por mês.

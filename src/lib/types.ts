@@ -146,6 +146,8 @@ export interface PayrollDeduction {
 export interface UserSettings {
   user_id: UUID;
   accent_color: string;
+  /** 'solid' = cards opacos · 'glass' = liquid glass com desfoque */
+  surface_style: 'solid' | 'glass';
   created_at: ISODateTime;
   updated_at: ISODateTime;
 }

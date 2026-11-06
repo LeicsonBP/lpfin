@@ -18,7 +18,7 @@ export default async function LoginPage({
   const theme = await getTheme();
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-6 p-6">
+    <main className="app-shell mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-6 p-6">
       <header className="flex items-start justify-between gap-3">
         <LpWordmark />
         <ThemeSelect initialTheme={theme} className="w-28" />
@@ -37,7 +37,7 @@ export default async function LoginPage({
         </p>
       ) : null}
 
-      <div className="rounded-2xl border border-line bg-surface p-5 shadow-sm">
+      <div className="glass-card rounded-2xl border border-line bg-surface p-5 shadow-sm">
         <LoginForm />
       </div>
     </main>

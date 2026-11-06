@@ -37,6 +37,20 @@
   --negative-soft: #fde8e6;
   --warning: #b54708;
   --warning-soft: #fdf1de;
+
+  /* liquid glass — usados apenas quando o usuário escolhe "Vidro" */
+  --glass-blur: 18px;
+  --glass-bg: color-mix(in srgb, var(--surface) 62%, transparent);
+  --glass-border: color-mix(in srgb, var(--line) 78%, transparent);
+  --glass-highlight: rgba(255, 255, 255, 0.5);
+  --glass-edge: rgba(255, 255, 255, 0.85);
+  --glass-shadow:
+    0 1px 1px rgba(15, 31, 25, 0.05), 0 12px 28px -14px rgba(15, 31, 25, 0.45);
+  --glass-sheen: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0) 46%
+  );
 }
 
 /* ------------------------------------------------------------------------- */
@@ -73,6 +87,18 @@
   --negative-soft: #331a1c;
   --warning: #f7c261;
   --warning-soft: #32260f;
+
+  --glass-bg: color-mix(in srgb, var(--surface) 58%, transparent);
+  --glass-border: color-mix(in srgb, #ffffff 16%, transparent);
+  --glass-highlight: rgba(255, 255, 255, 0.12);
+  --glass-edge: rgba(255, 255, 255, 0.2);
+  --glass-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.35), 0 16px 34px -16px rgba(0, 0, 0, 0.75);
+  --glass-sheen: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0) 48%
+  );
 }
 
 /* ------------------------------------------------------------------------- */
@@ -139,3 +165,76 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
+
+/* ------------------------------------------------------------------------- */
+/* Liquid glass                                                              */
+/* Ativado por <html data-surface="glass"> (preferência salva nos Ajustes).   */
+/* Fica fora dos @layer de propósito: assim sobrepõe bg-surface / shadow-*    */
+/* dos utilitários do Tailwind sem precisar de !important.                    */
+/* ------------------------------------------------------------------------- */
+[data-surface='glass'] .glass-card,
+[data-surface='glass'] .glass-pop,
+[data-surface='glass'] .glass-chrome {
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+  border-color: var(--glass-border);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px 0 var(--glass-edge);
+}
+
+/* brilho especular no canto superior esquerdo (na própria pilha de fundo,
+   para não passar por cima do texto do card) */
+[data-surface='glass'] .glass-card {
+  background-image:
+    radial-gradient(125% 85% at 0% 0%, var(--glass-highlight), transparent 58%),
+    var(--glass-sheen);
+}
+
+/* card do balanço mantém o tom da marca mesmo em vidro */
+[data-surface='glass'] .glass-tint {
+  background-image:
+    radial-gradient(125% 85% at 0% 0%, var(--glass-highlight), transparent 58%),
+    var(--glass-sheen),
+    linear-gradient(
+      140deg,
+      transparent 30%,
+      color-mix(in srgb, var(--brand-200) 55%, transparent)
+    );
+}
+
+/* fundo com "auroras" para o desfoque do vidro ter o que mostrar */
+[data-surface='glass'] .app-shell {
+  background-image:
+    radial-gradient(
+      60rem 34rem at 6% -10%,
+      color-mix(in srgb, var(--brand-300) 45%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      52rem 30rem at 98% 2%,
+      color-mix(in srgb, var(--brand-200) 42%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      56rem 32rem at 72% 108%,
+      color-mix(in srgb, var(--warning-soft) 70%, transparent),
+      transparent 66%
+    );
+  background-attachment: fixed;
+}
+
+/* quem pediu menos transparência recebe os cards sólidos */
+@media (prefers-reduced-transparency: reduce) {
+  [data-surface='glass'] .glass-card,
+  [data-surface='glass'] .glass-pop,
+  [data-surface='glass'] .glass-chrome {
+    background-color: var(--surface);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+

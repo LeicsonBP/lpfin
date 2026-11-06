@@ -11,7 +11,7 @@ import { MOBILE_BAR_ITEMS, NAV_ITEMS } from './nav-items';
 
 export function SideNav({ theme }: { theme: Theme }) {
   return (
-    <aside className="hidden w-60 shrink-0 border-r border-line bg-surface px-3 py-4 md:block">
+    <aside className="glass-chrome hidden w-60 shrink-0 border-r border-line bg-surface px-3 py-4 md:block">
       <div className="mb-6 px-2">
         <LpWordmark />
       </div>
@@ -66,7 +66,7 @@ export function MobileTopBar({ theme }: { theme: Theme }) {
 
 export function MobileNav() {
   return (
-    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 backdrop-blur md:hidden">
+    <nav className="glass-chrome safe-bottom fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 backdrop-blur md:hidden">
       <ul className="grid grid-cols-5">
         {MOBILE_BAR_ITEMS.map((item) => (
           <li key={item.href}>

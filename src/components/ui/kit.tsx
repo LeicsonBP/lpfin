@@ -9,7 +9,7 @@ export function Card({ className, ...props }: ComponentProps<'section'>) {
   return (
     <section
       className={clsx(
-        'rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-5',
+        'glass-card rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-5',
         className,
       )}
       {...props}

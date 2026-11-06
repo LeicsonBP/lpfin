@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 import { DEFAULT_ACCENT, safeHex } from '@/lib/color';
 import { requireUser } from '@/lib/data/session';
+import { safeSurfaceStyle } from '@/lib/surface';
 import type { ActionResult } from '@/lib/types';
 
 import { dbFail, ok } from './helpers';
@@ -40,4 +41,23 @@ export async function resetAccentColorAction(): Promise<void> {
   );
 
   revalidatePath('/', 'layout');
+}
+
+/**
+ * Salva o estilo dos cards: 'solid' (padrão) ou 'glass' (liquid glass).
+ * Vale em qualquer dispositivo (fica salvo na conta).
+ */
+export async function setSurfaceStyleAction(style: string): Promise<ActionResult> {
+  const surface = safeSurfaceStyle(style);
+
+  const { supabase, user } = await requireUser();
+  const { error } = await supabase.from('user_settings').upsert(
+    { user_id: user.id, surface_style: surface },
+    { onConflict: 'user_id' },
+  );
+
+  if (error) return dbFail(error.message);
+
+  revalidatePath('/', 'layout');
+  return ok(surface === 'glass' ? 'Cards em vidro.' : 'Cards sólidos.');
 }

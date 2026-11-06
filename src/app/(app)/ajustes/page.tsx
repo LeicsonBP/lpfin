@@ -1,16 +1,17 @@
 import { AppHeader } from '@/components/layout/nav';
 import { EntityForm } from '@/components/forms/entity-form';
 import { Card, SectionTitle } from '@/components/ui/kit';
+import { SurfaceSelect } from '@/components/ui/surface-select';
 import { ThemeSelect } from '@/components/ui/theme-select';
 import { signOutAction } from '@/lib/actions/auth';
 import { updateAccentColorAction, resetAccentColorAction } from '@/lib/actions/settings';
-import { getAccentColor } from '@/lib/data/settings';
+import { getUserSettings } from '@/lib/data/settings';
 import { requireUser } from '@/lib/data/session';
 import { getTheme } from '@/lib/theme';
 
 export default async function AjustesPage() {
   const { user } = await requireUser();
-  const [accent, theme] = await Promise.all([getAccentColor(), getTheme()]);
+  const [{ accent, surface }, theme] = await Promise.all([getUserSettings(), getTheme()]);
 
   return (
     <div className="space-y-4">
@@ -24,6 +25,14 @@ export default async function AjustesPage() {
         <div className="max-w-xs">
           <ThemeSelect initialTheme={theme} />
         </div>
+      </Card>
+
+      <Card>
+        <SectionTitle
+          title="Estilo dos cards"
+          description="Sólido (opaco) ou vidro com desfoque — fica salvo na sua conta"
+        />
+        <SurfaceSelect initial={surface} />
       </Card>
 
       <Card>
