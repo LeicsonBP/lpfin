@@ -51,7 +51,7 @@ export function MobileMenu({ theme }: { theme: Theme }) {
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-11 z-40 w-60 rounded-2xl border border-line bg-surface p-3 shadow-xl">
+        <div className="absolute right-0 top-11 z-40 w-60 max-w-[calc(100vw-1.5rem)] rounded-2xl border border-line bg-surface p-3 shadow-xl">
           <div className="space-y-1">
             <span className="block px-1 text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
               Tema
