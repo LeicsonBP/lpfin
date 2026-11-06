@@ -244,7 +244,10 @@ tabela `card_payments` (+RLS +trigger), colunas `series_id`/`is_recurring` em `i
 - Migration `20250101000600_surface_style.sql` (com `notify pgrst, 'reload schema'`) ainda precisa ser
   aplicada no projeto Supabase (`npm run db:migrate`) para a preferência valer entre dispositivos — até
   lá o cookie mantém tudo funcionando.
-- Vidro suavizado: `--glass-bg` de 62% → 74% de opacidade, brilho especular 0.55 → 0.26, borda interna
-  0.85 → 0.5 e auroras do shell de 45%/42%/70% → 30%/26%/42%.
+- Vidro suavizado em duas passadas: `--glass-blur` 16 → **22px**, `--glass-bg` 74% → **70%**, brilho
+  especular 0.26 → **0.14** (+ véu de `brand-50` a 50%), specular 0.22 → **0.14**, borda interna 0.5 →
+  **0.42**, sombra `-18px/0.26` e auroras do shell 30/26/42% → **26/22/34%** com raios maiores.
+- `StatTile` (usado no Dashboard: média, projeção, fim dos parcelamentos e contas projetadas) passou a
+  usar `glass-card`; dentro do card do balanço recebe `flat` para não empilhar desfoque.
 
 

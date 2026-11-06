@@ -43,10 +43,10 @@ export function BalanceCard({ summary }: { summary: MonthlySummary }) {
         </div>
 
         <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:grid-cols-4">
-          <StatTile label="Ganhos" value={formatBRL(summary.incomeTotal)} tone="positive" />
-          <StatTile label="Cartões" value={formatBRL(summary.cardsTotal)} />
-          <StatTile label="Contas" value={formatBRL(summary.fixedTotal)} />
-          <StatTile label="Folha" value={formatBRL(summary.payrollTotal)} />
+          <StatTile label="Ganhos" value={formatBRL(summary.incomeTotal)} tone="positive" flat />
+          <StatTile label="Cartões" value={formatBRL(summary.cardsTotal)} flat />
+          <StatTile label="Contas" value={formatBRL(summary.fixedTotal)} flat />
+          <StatTile label="Folha" value={formatBRL(summary.payrollTotal)} flat />
         </div>
       </div>
     </Card>

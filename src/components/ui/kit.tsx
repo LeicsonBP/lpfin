@@ -90,14 +90,22 @@ export function StatTile({
   value,
   hint,
   tone = 'neutral',
+  flat = false,
 }: {
   label: string;
   value: string;
   hint?: string;
   tone?: 'neutral' | 'positive' | 'negative';
+  /** dentro de um card que já é de vidro: evita desfoque empilhado */
+  flat?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-surface px-3 py-2.5">
+    <div
+      className={clsx(
+        'rounded-xl border border-line px-3 py-2.5',
+        flat ? 'bg-surface/70' : 'glass-card bg-surface',
+      )}
+    >
       <p className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">{label}</p>
       <p
         className={clsx(
