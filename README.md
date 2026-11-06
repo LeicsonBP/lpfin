@@ -173,8 +173,10 @@ src/
 
 - **Logotipo oficial**: a arte enviada foi renomeada para `src/components/brand/lp-logo.svg` e é a
   fonte única. `npm run logo` (`scripts/build-logo.mjs`) extrai os paths para `lp-logo-paths.ts`
-  — o componente usa `fill="currentColor"`, então o logo alterna entre **preto e branco** com o
-  tema — e regenera o favicon `src/app/icon.svg`.
+  — o componente usa `fill="currentColor"` e é renderizado **sem fundo**, na cor do texto (escuro no
+  tema claro, claro no escuro). O mesmo script gera o favicon `src/app/icon.svg` **sem fundo**, com
+  `@media (prefers-color-scheme)` para acompanhar o tema do navegador (fallback branco em
+  navegadores que ignoram a media query).
 - **Fatura do cartão**: o checkbox agora é o **mesmo botão redondo** das contas fixas. Ao pagar, o
   card do cartão ganha **borda verde** e o **nome do cartão fica riscado** (as compras do mês
   continuam normais, sem riscado).

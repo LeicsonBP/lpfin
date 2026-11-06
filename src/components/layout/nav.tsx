@@ -71,9 +71,7 @@ export function MobileTopBar({ theme }: { theme: Theme }) {
   return (
     <div className="mb-4 flex items-center justify-between gap-3 md:hidden">
       <div className="flex items-center gap-2">
-        <span className="inline-flex size-8 items-center justify-center rounded-lg bg-ink text-surface">
-          <LpMark className="size-5" />
-        </span>
+        <LpMark className="h-7 w-auto text-ink" />
         <span className="text-base font-semibold tracking-tight text-ink">LPFIN</span>
       </div>
       <ThemeSelect initialTheme={theme} className="w-28" />

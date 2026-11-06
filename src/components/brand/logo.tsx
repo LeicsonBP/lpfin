@@ -34,7 +34,7 @@ export function LpMark({
   );
 }
 
-/** Logo + nome do app, para navbar/login. */
+/** Logo + nome do app, para navbar/login (sem fundo — a cor segue o tema). */
 export function LpWordmark({
   compact = false,
   className = '',
@@ -44,9 +44,7 @@ export function LpWordmark({
 }) {
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      <span className="inline-flex size-9 items-center justify-center rounded-xl bg-ink px-1.5 py-1 text-surface">
-        <LpMark className="h-full w-full" />
-      </span>
+      <LpMark className="h-8 w-auto text-ink" />
       {compact ? null : (
         <span className="leading-tight">
           <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-700">
