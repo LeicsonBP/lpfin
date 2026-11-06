@@ -184,3 +184,25 @@ tabela `card_payments` (+RLS +trigger), colunas `series_id`/`is_recurring` em `i
 - `chore: setup Next.js 16, schema Supabase e motor financeiro`
 - `feat: autenticacao Supabase, visao mensal, CRUDs e dashboard com projecao`
 
+
+
+---
+
+## [Ajustes v3] — terceira rodada de correções
+
+| # | Pedido | Implementação |
+|---|---|---|
+| 1 | Logotipo estranho → refazer do zero | `LpMark` redesenhado como **monograma geométrico LP** (L aberto + P com bojo circular e haste longa), traço 5.6 com pontas arredondadas; `src/app/icon.svg` com o mesmo desenho. |
+| 2 | Seleção de tema estranha → caixa de seleção | `ThemeSelect` (`<select>` com **Sistema / Claro / Escuro**), `lib/theme.ts` (`getTheme` lê cookie no servidor) e tema aplicado em `<html class="dark">` — sem flash e sem botão de ícone. |
+| 3 | Paleta aberta na tela → dentro de um card | `ColorPicker` virou um botão que abre um **popover** com grade de cores, campo hexadecimal e “Usar esta cor” (fecha com clique fora ou Esc). |
+| 4 | Contas fixas sem categorias + nomenclatura | `category` removido do formulário/lista; `base_value` exibido como **“Valor estimado”** (com hint de que o valor real é mensal). Badge na visão mensal: “estimado”. |
+| 5 | Pago individual em contas fixas / unificado no cartão | `InstallmentRow` sem checkbox próprio (apenas ajuste de valor); `toggleCardPaymentAction` grava `card_payments` **e** propaga `is_paid` para todas as parcelas do cartão naquele mês. Contas fixas mantêm checkbox individual (com upsert). |
+| 6 | Compras/débitos já em andamento | `current_installment` em `purchaseLineSchema` e `payrollDeductionSchema`: informa-se a parcela atual (ex.: 2 de 3 / 11 de 12); meses anteriores são gerados como **pagos** e os próximos em aberto, com prévia na UI. |
+
+### Validação E2E (dados removidos ao final)
+
+- Compra **2/3** cadastrada em Nov/2026 → parcelas em **Out (paga)**, Nov (aberta), Dez (aberta).
+- Checkbox “Fatura paga?” de Nov/2026 → `card_payments` + parcelas de novembro `is_paid = true` (dezembro intacto).
+- Débito em folha **11/12** → 12 linhas geradas, **10 marcadas como pagas**.
+- `npm run build` (12 rotas) · `npm test` (14 testes) · `npm run lint` (exit 0).
+- Smoke test: `/login` traz a caixa de seleção de tema (Sistema/Claro/Escuro), o novo logo e o botão Google.
