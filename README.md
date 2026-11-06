@@ -48,6 +48,9 @@ As migrations ficam em [`supabase/migrations`](supabase/migrations):
 2. `20250101000100_rls_policies.sql` — RLS habilitado em todas as tabelas, com policies
    `auth.uid() = user_id` (e validação do registro pai em entries/installments).
 3. `20250101000200_views.sql` — view `v_month_totals` para conferência dos totais por mês.
+4. `20250101000300_categories_cards_recurrence.sql` — categorias à vista/à prazo, `card_payments`
+   (fatura paga por mês) e ganhos recorrentes.
+5. `20250101000400_user_settings.sql` — `user_settings` (cor de destaque por usuário).
 
 **Opção A — SQL Editor (manual):** abra o SQL Editor do Supabase e cole o conteúdo dos três
 arquivos, na ordem.
@@ -107,6 +110,7 @@ src/
 │  ├─ (app)/contas-fixas        # CRUD do "molde" das contas fixas
 │  ├─ (app)/ganhos              # receitas do mês
 │  └─ (app)/debitos             # débitos em folha (fixos/parcelados)
+│  └─ (app)/ajustes             # tema + cor de destaque (salva na conta)
 ├─ components/                  # ui, layout, monthly, forms, charts
 └─ lib/
    ├─ finance.ts                # MOTOR FINANCEIRO (puro, testado)
@@ -127,6 +131,11 @@ src/
   respeitada por **Mês, Compras, Cartões, Ganhos, Folha e Dashboard** — a URL (`?ano=&mes=`) tem
   precedência sobre o cookie, que tem precedência sobre o mês atual. As telas mostram o seletor no
   cabeçalho e só listam o que pertence àquele mês (em Compras, compras com parcela na competência).
+- **Cor de destaque por usuário**: em **Ajustes** (`/ajustes`) o usuário escolhe a cor de destaque,
+  salva em `user_settings` (RLS por `user_id`) e o `RootLayout` injeta os tokens derivados
+  (`--brand-50…900`, `--primary*`) para os temas claro e escuro — vale em qualquer dispositivo.
+- **Cores do cartão**: cada cartão tem uma cor que pinta a barra de gasto, o fundo do card, a borda
+  de "fatura paga" e o checkbox.
 - **Motor de parcelamento** (`lib/finance.ts`): `buildInstallmentPlan` divide o total em centavos
   (a sobra vai para as primeiras parcelas — `100,00 / 3 = 33,34 + 33,33 + 33,33`) e cria uma
   linha em `installments` por mês.

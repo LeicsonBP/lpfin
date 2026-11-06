@@ -135,6 +135,14 @@ export interface PayrollDeduction {
   updated_at: ISODateTime;
 }
 
+/** Preferências do usuário (uma linha por usuário). */
+export interface UserSettings {
+  user_id: UUID;
+  accent_color: string;
+  created_at: ISODateTime;
+  updated_at: ISODateTime;
+}
+
 /** Resultado padrão das Server Actions (usado com useActionState). */
 export type ActionResult<T = undefined> =
   | { ok: true; data: T; message?: string }

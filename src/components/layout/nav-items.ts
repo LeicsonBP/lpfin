@@ -1,4 +1,4 @@
-import { CalendarRange, CreditCard, LayoutDashboard, Receipt, TrendingUp, Wallet } from 'lucide-react';
+import { CalendarRange, CreditCard, LayoutDashboard, Receipt, Settings, TrendingUp, Wallet } from 'lucide-react';
 import type { ComponentType } from 'react';
 
 export interface NavItem {
@@ -16,6 +16,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/contas-fixas', label: 'Contas fixas', icon: Wallet },
   { href: '/ganhos', label: 'Ganhos', icon: TrendingUp },
   { href: '/debitos', label: 'Folha', icon: Receipt },
+  { href: '/ajustes', label: 'Ajustes', icon: Settings },
 ];
 
 /** Itens exibidos na barra inferior do mobile. */
@@ -31,4 +32,5 @@ export const MOBILE_BAR_ITEMS: NavItem[] = [
 export const MOBILE_MENU_ITEMS: NavItem[] = [
   NAV_ITEMS[1]!, // Dashboard
   NAV_ITEMS[5]!, // Ganhos
+  NAV_ITEMS[7]!, // Ajustes
 ];

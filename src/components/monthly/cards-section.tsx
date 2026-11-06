@@ -87,6 +87,7 @@ export function CardsSection({
                 style={
                   {
                     '--card-color': card.color,
+                    backgroundImage: `linear-gradient(135deg, ${hexWithAlpha(card.color, 0.12)}, ${hexWithAlpha(card.color, 0.03)})`,
                     ...(isPaid ? { borderColor: card.color } : {}),
                   } as CSSProperties
                 }

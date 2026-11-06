@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
+import { AccentStyle } from '@/components/theme/accent-style';
+import { getAccentColor } from '@/lib/data/settings';
 import { getTheme } from '@/lib/theme';
 
 export const metadata: Metadata = {
@@ -28,11 +30,15 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const theme = await getTheme();
+  const accent = await getAccentColor();
   const isDark = theme === 'dark';
 
   return (
     <html lang="pt-BR" className={isDark ? 'dark' : undefined} suppressHydrationWarning>
-      <body className="min-h-dvh antialiased">{children}</body>
+      <body className="min-h-dvh antialiased">
+        <AccentStyle accent={accent} />
+        {children}
+      </body>
     </html>
   );
 }
