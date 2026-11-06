@@ -210,6 +210,14 @@
     );
 }
 
+/* Popovers (cores do cartão/cor de destaque) dentro de um card: o
+   backdrop-filter do vidro cria um stacking context e o card seguinte
+   passava por cima do popover. Quem contém um popover aberto sobe. */
+.glass-card:has(.glass-pop) {
+  position: relative;
+  z-index: 30;
+}
+
 /* fundo com "auroras" para o desfoque do vidro ter o que mostrar */
 [data-surface='glass'] .app-shell {
   background-image:
