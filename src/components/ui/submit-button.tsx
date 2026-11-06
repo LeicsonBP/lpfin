@@ -4,14 +4,24 @@ import { useFormStatus } from 'react-dom';
 
 import { clsx } from 'clsx';
 
+type ButtonVariant = 'primary' | 'outline' | 'ghost';
+
+const VARIANTS: Record<ButtonVariant, string> = {
+  primary: 'bg-primary text-on-primary hover:bg-primary-hover',
+  outline: 'border border-line bg-surface text-ink hover:bg-surface-muted',
+  ghost: 'border border-line text-ink-muted hover:border-brand-400 hover:text-brand-700',
+};
+
 export function SubmitButton({
   children,
   className,
   pendingLabel = 'Salvando...',
+  variant = 'primary',
 }: {
   children: React.ReactNode;
   className?: string;
   pendingLabel?: string;
+  variant?: ButtonVariant;
 }) {
   const { pending } = useFormStatus();
 
@@ -20,7 +30,8 @@ export function SubmitButton({
       type="submit"
       disabled={pending}
       className={clsx(
-        'inline-flex items-center justify-center gap-2 rounded-xl bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-70',
+        'inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70',
+        VARIANTS[variant],
         className,
       )}
     >
@@ -28,6 +39,7 @@ export function SubmitButton({
     </button>
   );
 }
+
 
 export function GhostSubmitButton({
   children,

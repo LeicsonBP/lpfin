@@ -55,13 +55,13 @@ export default async function DashboardPage({
         <div className="flex items-center gap-2 rounded-xl border border-line bg-surface p-1 text-xs">
           <a
             href="/dashboard?meses=6"
-            className={`rounded-lg px-3 py-1.5 font-semibold ${monthsAhead === 6 ? 'bg-brand-700 text-white' : 'text-ink-muted'}`}
+            className={`rounded-lg px-3 py-1.5 font-semibold ${monthsAhead === 6 ? 'bg-primary text-on-primary' : 'text-ink-muted'}`}
           >
             6 meses
           </a>
           <a
             href="/dashboard?meses=12"
-            className={`rounded-lg px-3 py-1.5 font-semibold ${monthsAhead === 12 ? 'bg-brand-700 text-white' : 'text-ink-muted'}`}
+            className={`rounded-lg px-3 py-1.5 font-semibold ${monthsAhead === 12 ? 'bg-primary text-on-primary' : 'text-ink-muted'}`}
           >
             12 meses
           </a>

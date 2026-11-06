@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 
 import { LoginForm } from '@/components/auth/login-form';
+import { LpWordmark } from '@/components/brand/logo';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 export const metadata: Metadata = {
   title: 'Entrar — LPFIN',
@@ -15,15 +17,17 @@ export default async function LoginPage({
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-6 p-6">
-      <header className="space-y-1">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-700">
-          Controle Financeiro Pessoal
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">LPFIN</h1>
+      <header className="flex items-start justify-between gap-3">
+        <LpWordmark />
+        <ThemeToggle />
+      </header>
+
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Bem-vindo de volta</h1>
         <p className="text-sm text-ink-muted">
           Entre para acompanhar o mês, os parcelamentos e a projeção futura.
         </p>
-      </header>
+      </div>
 
       {params.erro ? (
         <p className="rounded-xl bg-negative-soft px-3 py-2 text-xs font-medium text-negative">
@@ -37,3 +41,4 @@ export default async function LoginPage({
     </main>
   );
 }
+

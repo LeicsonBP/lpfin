@@ -1,5 +1,5 @@
 import { AppHeader } from '@/components/layout/nav';
-import { MonthSelector } from '@/components/layout/month-selector';
+import { MonthPicker } from '@/components/layout/month-picker';
 import { BalanceCard } from '@/components/monthly/balance-card';
 import { CardsSection } from '@/components/monthly/cards-section';
 import { FixedBillsSection, IncomeSection, PayrollSection } from '@/components/monthly/list-sections';
@@ -28,7 +28,7 @@ export default async function MesPage({
   return (
     <div className="space-y-4">
       <AppHeader title="Visão mensal" subtitle="Tudo que acontece no mês selecionado">
-        <MonthSelector reference={reference} />
+        <MonthPicker reference={reference} />
       </AppHeader>
 
       <BalanceCard summary={summary} />

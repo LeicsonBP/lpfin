@@ -77,10 +77,7 @@ export function LoginForm() {
       </div>
 
       <form action={signInWithGoogleAction}>
-        <SubmitButton
-          className="w-full border border-line bg-surface text-ink hover:bg-surface-muted"
-          pendingLabel="Abrindo Google..."
-        >
+        <SubmitButton className="w-full" pendingLabel="Abrindo Google..." variant="outline">
           <GoogleIcon />
           Entrar com Google
         </SubmitButton>

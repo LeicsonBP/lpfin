@@ -1,31 +1,114 @@
 @import "tailwindcss";
 
-@theme {
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------------- */
+/* Tokens — tema claro (padrão)                                              */
+/* ------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  --surface: #ffffff;
+  --surface-muted: #f4f6f8;
+  --ink: #111827;
+  --ink-muted: #5b6472;
+  --line: #e3e8ee;
+
+  --primary: #0e6855;
+  --primary-hover: #0f5346;
+  --primary-soft: #eefbf6;
+  --on-primary: #ffffff;
+
+  --brand-50: #eefbf6;
+  --brand-100: #d5f5e8;
+  --brand-200: #ade9d3;
+  --brand-300: #79d6b8;
+  --brand-400: #45bd99;
+  --brand-500: #21a280;
+  --brand-600: #118268;
+  --brand-700: #0e6855;
+  --brand-800: #0f5346;
+  --brand-900: #0e443b;
+
+  --positive: #0f7b4f;
+  --positive-soft: #e6f6ed;
+  --negative: #b42318;
+  --negative-soft: #fdeceb;
+  --warning: #b54708;
+  --warning-soft: #fef4e6;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Tokens — tema escuro (tons mais claros para melhor contraste)             */
+/* ------------------------------------------------------------------------- */
+.dark {
+  color-scheme: dark;
+
+  --surface: #151d22;
+  --surface-muted: #0a1014;
+  --ink: #edf4f7;
+  --ink-muted: #a3b5c1;
+  --line: #27343d;
+
+  --primary: #8ce7c4;
+  --primary-hover: #b3f2d8;
+  --primary-soft: #10312a;
+  --on-primary: #06231b;
+
+  --brand-50: #0d2b25;
+  --brand-100: #103a30;
+  --brand-200: #144a3e;
+  --brand-300: #1a6351;
+  --brand-400: #268d70;
+  --brand-500: #38b78f;
+  --brand-600: #5fd6ae;
+  --brand-700: #8ce7c4;
+  --brand-800: #b3f2d8;
+  --brand-900: #d7f9ec;
+
+  --positive: #6ee7a8;
+  --positive-soft: #0f2c21;
+  --negative: #ff8a80;
+  --negative-soft: #331a1c;
+  --warning: #f7c261;
+  --warning-soft: #32260f;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Mapeamento para utilitários do Tailwind                                   */
+/* ------------------------------------------------------------------------- */
+@theme inline {
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 
-  --color-brand-50: #eefbf6;
-  --color-brand-100: #d5f5e8;
-  --color-brand-200: #ade9d3;
-  --color-brand-300: #79d6b8;
-  --color-brand-400: #45bd99;
-  --color-brand-500: #21a280;
-  --color-brand-600: #118268;
-  --color-brand-700: #0e6855;
-  --color-brand-800: #0f5346;
-  --color-brand-900: #0e443b;
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
 
-  --color-surface: #ffffff;
-  --color-surface-muted: #f4f6f8;
-  --color-ink: #111827;
-  --color-ink-muted: #5b6472;
-  --color-line: #e3e8ee;
-  --color-positive: #0f7b4f;
-  --color-positive-soft: #e6f6ed;
-  --color-negative: #b42318;
-  --color-negative-soft: #fdeceb;
-  --color-warning: #b54708;
-  --color-warning-soft: #fef4e6;
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+
+  --color-positive: var(--positive);
+  --color-positive-soft: var(--positive-soft);
+  --color-negative: var(--negative);
+  --color-negative-soft: var(--negative-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
 }
 
 @layer base {
@@ -34,9 +117,10 @@
   }
 
   body {
-    background-color: var(--color-surface-muted);
-    color: var(--color-ink);
+    background-color: var(--surface-muted);
+    color: var(--ink);
     font-family: var(--font-sans);
+    transition: background-color 150ms ease, color 150ms ease;
   }
 
   :where(button, input, select, textarea) {

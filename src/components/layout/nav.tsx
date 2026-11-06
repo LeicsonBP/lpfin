@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+import { LpMark, LpWordmark } from '@/components/brand/logo';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { signOutAction } from '@/lib/actions/auth';
 
 const NAV_ITEMS = [
@@ -25,10 +27,7 @@ export function SideNav() {
   return (
     <aside className="hidden w-60 shrink-0 border-r border-line bg-surface px-3 py-4 md:block">
       <div className="mb-6 px-2">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-700">
-          Controle financeiro
-        </p>
-        <p className="text-xl font-semibold tracking-tight text-ink">LPFIN</p>
+        <LpWordmark />
       </div>
 
       <nav className="space-y-1">
@@ -44,16 +43,38 @@ export function SideNav() {
         ))}
       </nav>
 
-      <form action={signOutAction} className="mt-6 px-1">
-        <button
-          type="submit"
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-ink-muted transition hover:bg-negative-soft hover:text-negative"
-        >
-          <LogOut className="size-4" />
-          Sair
-        </button>
-      </form>
+      <div className="mt-6 space-y-2 px-1">
+        <div className="flex items-center justify-between rounded-xl border border-line px-2 py-1.5">
+          <span className="text-[11px] font-medium text-ink-muted">Tema</span>
+          <ThemeToggle className="border-0 bg-transparent" />
+        </div>
+
+        <form action={signOutAction}>
+          <button
+            type="submit"
+            className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-ink-muted transition hover:bg-negative-soft hover:text-negative"
+          >
+            <LogOut className="size-4" />
+            Sair
+          </button>
+        </form>
+      </div>
     </aside>
+  );
+}
+
+/** Barra superior exibida apenas no mobile (logo + tema). */
+export function MobileTopBar() {
+  return (
+    <div className="mb-4 flex items-center justify-between md:hidden">
+      <div className="flex items-center gap-2">
+        <span className="inline-flex size-8 items-center justify-center rounded-lg bg-ink text-surface">
+          <LpMark className="size-6" />
+        </span>
+        <span className="text-base font-semibold tracking-tight text-ink">LPFIN</span>
+      </div>
+      <ThemeToggle />
+    </div>
   );
 }
 
