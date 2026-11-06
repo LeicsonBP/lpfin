@@ -101,9 +101,7 @@ export function PayrollSection({ payroll }: { payroll: PayrollDeduction[] }) {
               </span>
 
               <div className="min-w-0 flex-1">
-                <p className={`truncate text-sm ${item.is_paid ? 'text-ink-muted line-through' : 'text-ink'}`}>
-                  {item.name}
-                </p>
+                <p className="truncate text-sm text-ink">{item.name}</p>
                 <div className="flex items-center gap-1.5">
                   <Badge tone="neutral">automático</Badge>
                 </div>
