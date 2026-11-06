@@ -1,14 +1,11 @@
 'use client';
 
 import { clsx } from 'clsx';
-import { Check, Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { useState, useTransition } from 'react';
 
 import { Badge } from '@/components/ui/kit';
-import {
-  toggleInstallmentPaidAction,
-  updateInstallmentAmountAction,
-} from '@/lib/actions/installments';
+import { updateInstallmentAmountAction } from '@/lib/actions/installments';
 import { formatBRLCompact, formatInstallmentLabel } from '@/lib/format';
 import { isOverdue } from '@/lib/finance';
 import type { Installment } from '@/lib/types';
@@ -51,6 +48,7 @@ export function InstallmentRow({
         </p>
         <div className="flex items-center gap-1.5">
           {cardName ? <span className="text-[11px] text-ink-muted">{cardName}</span> : null}
+          {installment.is_paid ? <Badge tone="positive">pago</Badge> : null}
           {installment.is_adjusted ? <Badge tone="warning">ajustada</Badge> : null}
           {overdue ? <Badge tone="negative">atrasada</Badge> : null}
         </div>
@@ -74,31 +72,14 @@ export function InstallmentRow({
           <button
             type="button"
             onClick={() => setEditing(true)}
+            disabled={pending}
             title="Ajustar valor desta parcela"
-            className="money group inline-flex items-center gap-1 rounded-lg px-1.5 py-1 text-sm font-medium text-ink hover:bg-surface-muted"
+            className="money group inline-flex items-center gap-1 rounded-lg px-1.5 py-1 text-sm font-medium text-ink hover:bg-surface-muted disabled:opacity-60"
           >
             {formatBRLCompact(installment.amount)}
             <Pencil className="size-3 text-ink-muted opacity-0 transition group-hover:opacity-100" />
           </button>
         )}
-
-        <form action={toggleInstallmentPaidAction}>
-          <input type="hidden" name="id" value={installment.id} />
-          <input type="hidden" name="paid" value={installment.is_paid ? 'false' : 'true'} />
-          <button
-            type="submit"
-            disabled={pending}
-            title={installment.is_paid ? 'Marcar como pendente' : 'Marcar como pago'}
-            className={clsx(
-              'inline-flex size-7 items-center justify-center rounded-full border transition',
-              installment.is_paid
-                ? 'border-positive bg-positive-soft text-positive'
-                : 'border-line text-ink-muted hover:border-brand-400 hover:text-brand-700',
-            )}
-          >
-            <Check className="size-3.5" />
-          </button>
-        </form>
       </div>
     </li>
   );

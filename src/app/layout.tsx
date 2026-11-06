@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
-import { cookies } from 'next/headers';
 import './globals.css';
+
+import { getTheme } from '@/lib/theme';
 
 export const metadata: Metadata = {
   title: 'LPFIN — Controle Financeiro Pessoal',
@@ -20,7 +21,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const theme = (await cookies()).get('lpfin-theme')?.value;
+  const theme = await getTheme();
   const isDark = theme === 'dark';
 
   return (

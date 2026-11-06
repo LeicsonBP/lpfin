@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 
 import { LoginForm } from '@/components/auth/login-form';
 import { LpWordmark } from '@/components/brand/logo';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { ThemeSelect } from '@/components/ui/theme-select';
+import { getTheme } from '@/lib/theme';
 
 export const metadata: Metadata = {
   title: 'Entrar — LPFIN',
@@ -14,12 +15,13 @@ export default async function LoginPage({
   searchParams: Promise<{ erro?: string }>;
 }) {
   const params = await searchParams;
+  const theme = await getTheme();
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-6 p-6">
       <header className="flex items-start justify-between gap-3">
         <LpWordmark />
-        <ThemeToggle />
+        <ThemeSelect initialTheme={theme} className="w-28" />
       </header>
 
       <div className="space-y-1">

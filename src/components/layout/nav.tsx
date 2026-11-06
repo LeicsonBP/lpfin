@@ -10,8 +10,9 @@ import {
 import Link from 'next/link';
 
 import { LpMark, LpWordmark } from '@/components/brand/logo';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { ThemeSelect } from '@/components/ui/theme-select';
 import { signOutAction } from '@/lib/actions/auth';
+import type { Theme } from '@/lib/theme';
 
 const NAV_ITEMS = [
   { href: '/mes', label: 'Mês', icon: CalendarRange },
@@ -23,7 +24,7 @@ const NAV_ITEMS = [
   { href: '/debitos', label: 'Folha', icon: Receipt },
 ] as const;
 
-export function SideNav() {
+export function SideNav({ theme }: { theme: Theme }) {
   return (
     <aside className="hidden w-60 shrink-0 border-r border-line bg-surface px-3 py-4 md:block">
       <div className="mb-6 px-2">
@@ -44,9 +45,11 @@ export function SideNav() {
       </nav>
 
       <div className="mt-6 space-y-2 px-1">
-        <div className="flex items-center justify-between rounded-xl border border-line px-2 py-1.5">
-          <span className="text-[11px] font-medium text-ink-muted">Tema</span>
-          <ThemeToggle className="border-0 bg-transparent" />
+        <div className="space-y-1">
+          <span className="px-1 text-[10px] font-semibold uppercase tracking-wide text-ink-muted">
+            Tema
+          </span>
+          <ThemeSelect initialTheme={theme} />
         </div>
 
         <form action={signOutAction}>
@@ -64,16 +67,16 @@ export function SideNav() {
 }
 
 /** Barra superior exibida apenas no mobile (logo + tema). */
-export function MobileTopBar() {
+export function MobileTopBar({ theme }: { theme: Theme }) {
   return (
-    <div className="mb-4 flex items-center justify-between md:hidden">
+    <div className="mb-4 flex items-center justify-between gap-3 md:hidden">
       <div className="flex items-center gap-2">
         <span className="inline-flex size-8 items-center justify-center rounded-lg bg-ink text-surface">
-          <LpMark className="size-6" />
+          <LpMark className="size-5" />
         </span>
         <span className="text-base font-semibold tracking-tight text-ink">LPFIN</span>
       </div>
-      <ThemeToggle />
+      <ThemeSelect initialTheme={theme} className="w-28" />
     </div>
   );
 }

@@ -3,32 +3,42 @@
 import { Trash2 } from 'lucide-react';
 
 import { Field, MoneyInput } from '@/components/ui/kit';
-import { formatBRL } from '@/lib/format';
+import { addMonths } from '@/lib/finance';
+import { formatBRL, formatMonthLabel } from '@/lib/format';
 import { parseMoneyInput } from '@/lib/money';
+import type { MonthRef } from '@/lib/types';
 
 export interface PurchaseLineDraft {
   key: number;
   description: string;
   installment_amount: string;
   installments_count: number;
+  /** parcela em que a compra está hoje (1 = começa agora) */
+  current_installment: number;
 }
 
 /** Uma linha do cadastro em lote (valor da parcela × quantidade). */
 export function PurchaseLineRow({
   line,
   index,
+  reference,
   onChange,
   onRemove,
   canRemove,
 }: {
   line: PurchaseLineDraft;
   index: number;
+  /** mês da parcela informada (competência atual) */
+  reference: MonthRef;
   onChange: (key: number, patch: Partial<PurchaseLineDraft>) => void;
   onRemove: (key: number) => void;
   canRemove: boolean;
 }) {
   const parsed = parseMoneyInput(line.installment_amount);
   const total = (Number.isFinite(parsed) ? parsed : 0) * (line.installments_count || 1);
+  const current = Math.min(Math.max(line.current_installment, 1), line.installments_count || 1);
+  const firstMonth = addMonths(reference, -(current - 1));
+  const paidCount = current - 1;
 
   return (
     <div className="grid grid-cols-1 gap-2 rounded-xl border border-line p-3 sm:grid-cols-12 sm:items-end">
@@ -82,10 +92,35 @@ export function PurchaseLineRow({
         </button>
       </div>
 
-      <p className="money text-[11px] text-ink-muted sm:col-span-12">
-        Total desta compra: {formatBRL(total)} ·{' '}
-        {line.installments_count > 1 ? 'à prazo' : 'à vista'}
-      </p>
+      <div className="sm:col-span-4">
+        <Field
+          label="Parcela atual"
+          htmlFor={`current-${line.key}`}
+          hint={`de ${line.installments_count || 1}`}
+        >
+          <input
+            id={`current-${line.key}`}
+            type="number"
+            min={1}
+            max={line.installments_count || 1}
+            value={line.current_installment}
+            onChange={(event) =>
+              onChange(line.key, { current_installment: Number(event.target.value) })
+            }
+            className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-brand-500"
+          />
+        </Field>
+      </div>
+
+      <div className="flex flex-col justify-end gap-0.5 sm:col-span-8">
+        <p className="money text-[11px] text-ink-muted">
+          Total: {formatBRL(total)} · {line.installments_count > 1 ? 'à prazo' : 'à vista'}
+        </p>
+        <p className="text-[11px] text-ink-muted">
+          1ª parcela em {formatMonthLabel(firstMonth).toLowerCase()}
+          {paidCount > 0 ? ` · ${paidCount} parcela(s) anterior(es) marcada(s) como paga(s)` : ''}
+        </p>
+      </div>
     </div>
   );
 }

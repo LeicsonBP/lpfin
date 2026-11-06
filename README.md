@@ -154,6 +154,21 @@ src/
 - **Ganhos recorrentes**: geração automática de até 36 meses com `series_id` e ajuste de valor
   a partir de um mês (preserva o histórico anterior).
 
+### Ajustes da terceira rodada (v3)
+
+- **Logotipo** refeito do zero: monograma geométrico **LP** (traço contínuo com pontas
+  arredondadas) em `src/components/brand/logo.tsx` e no favicon `src/app/icon.svg`.
+- **Tema** virou **caixa de seleção** (Sistema / Claro / Escuro) — grava cookie e o servidor já
+  entrega o HTML no tema correto (sem flash).
+- **Cor do cartão** agora fica dentro de um **card flutuante** aberto por botão: paleta, campo
+  hexadecimal e “Usar esta cor”.
+- **Contas fixas** não possuem categoria; o campo de referência passou a se chamar
+  **“Valor estimado”** (usado na projeção — o valor real é lançado mês a mês).
+- **Pago** é **individual por conta fixa** e **unificado por cartão**: o checkbox “Fatura paga?”
+  marca/desmarca todas as parcelas daquele cartão no mês.
+- **Cadastro em andamento**: compras e débitos em folha aceitam **“parcela atual”** (ex.: 2 de 3 ou
+  11 de 12); os meses anteriores são gerados automaticamente e entram como **pagos**.
+
 ## Deploy na Vercel
 
 1. Importe o repositório `LeicsonBP/lpfin`.

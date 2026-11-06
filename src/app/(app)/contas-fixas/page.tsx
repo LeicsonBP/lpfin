@@ -16,11 +16,11 @@ function fields(bill?: FixedBill): EntityField[] {
     { name: 'name', label: 'Nome da conta', required: true, defaultValue: bill?.name },
     {
       name: 'base_value',
-      label: 'Valor base',
+      label: 'Valor estimado',
       type: 'money',
       required: true,
       defaultValue: bill?.base_value ?? 0,
-      hint: 'Usado na projeção quando ainda não há histórico',
+      hint: 'Referência para a projeção — o valor real é informado mês a mês',
     },
     {
       name: 'due_day',
@@ -30,12 +30,6 @@ function fields(bill?: FixedBill): EntityField[] {
       max: 31,
       required: true,
       defaultValue: bill?.due_day ?? 10,
-    },
-    {
-      name: 'category',
-      label: 'Categoria',
-      defaultValue: bill?.category ?? '',
-      placeholder: 'moradia, assinaturas...',
     },
     { name: 'is_active', label: 'Conta ativa', type: 'checkbox', defaultValue: bill?.is_active ?? true },
   ];
@@ -70,10 +64,9 @@ export default async function ContasFixasPage() {
                     <p className="flex items-center gap-2 text-sm font-semibold text-ink">
                       {bill.name}
                       {!bill.is_active ? <Badge>inativa</Badge> : null}
-                      {bill.category ? <Badge tone="brand">{bill.category}</Badge> : null}
                     </p>
                     <p className="text-[11px] text-ink-muted">
-                      valor base {formatBRL(bill.base_value)}
+                      valor estimado {formatBRL(bill.base_value)}
                       {bill.due_day ? ` · vence dia ${bill.due_day}` : ''}
                     </p>
                   </div>

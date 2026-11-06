@@ -87,12 +87,18 @@ export const payrollDeductionSchema = z
     amount: moneySchema,
     kind: z.enum(['fixed', 'installment']).default('fixed'),
     installments_count: z.coerce.number().int().min(1).max(120).default(1),
+    /** parcela em que o débito está hoje (ex.: 11 de 12) */
+    current_installment: z.coerce.number().int().min(1).max(120).default(1),
     reference_year: yearSchema,
     reference_month: monthSchema,
   })
   .refine((data) => data.kind === 'fixed' || data.installments_count >= 1, {
     message: 'Informe o número de parcelas',
     path: ['installments_count'],
+  })
+  .refine((data) => data.current_installment <= data.installments_count, {
+    message: 'A parcela atual não pode ser maior que o total',
+    path: ['current_installment'],
   });
 
 export const transactionSchema = z.object({
@@ -117,15 +123,22 @@ export const transactionSchema = z.object({
 });
 
 /** Uma linha do cadastro em lote: valor da parcela × quantidade. */
-export const purchaseLineSchema = z.object({
-  description: nameSchema,
-  installment_amount: moneySchema,
-  installments_count: z.coerce
-    .number()
-    .int('Número de parcelas inválido')
-    .min(1, 'Mínimo de 1 parcela')
-    .max(120, 'Máximo de 120 parcelas'),
-});
+export const purchaseLineSchema = z
+  .object({
+    description: nameSchema,
+    installment_amount: moneySchema,
+    installments_count: z.coerce
+      .number()
+      .int('Número de parcelas inválido')
+      .min(1, 'Mínimo de 1 parcela')
+      .max(120, 'Máximo de 120 parcelas'),
+    /** parcela que o usuário está cadastrando agora (ex.: 2 de 3) */
+    current_installment: z.coerce.number().int().min(1).max(120).default(1),
+  })
+  .refine((line) => line.current_installment <= line.installments_count, {
+    message: 'A parcela atual não pode ser maior que o total',
+    path: ['current_installment'],
+  });
 
 /** Cadastro de várias compras no mesmo cartão, de uma só vez. */
 export const purchaseBatchSchema = z.object({

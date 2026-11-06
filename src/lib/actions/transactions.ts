@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { requireUser } from '@/lib/data/session';
-import { buildInstallmentPlan } from '@/lib/finance';
+import { addMonths, buildInstallmentPlan } from '@/lib/finance';
 import { formatBRL } from '@/lib/format';
 import { fromCents, toCents } from '@/lib/money';
 import { purchaseBatchSchema, transactionSchema } from '@/lib/schemas';
@@ -171,8 +171,8 @@ export async function deleteTransactionAction(formData: FormData): Promise<void>
 
 /**
  * Cadastro em lote: um cartão e várias compras de uma vez.
- * Cada linha informa o valor da parcela e a quantidade de parcelas;
- * o total é calculado (valor × parcelas) e as parcelas são geradas.
+ * Cada linha informa o valor da parcela, o total de parcelas e em qual
+ * parcela a compra está hoje (ex.: 2 de 3) — as anteriores entram como pagas.
  */
 export async function createPurchasesBatchAction(
   _prevState: ActionResult | undefined,
@@ -195,12 +195,16 @@ export async function createPurchasesBatchAction(
 
   const { supabase, user } = await requireUser();
   const { card_id, start_year, start_month, lines } = parsed.data;
-  const start = { year: start_year, month: start_month };
+  /** mês da parcela informada pelo usuário */
+  const reference = { year: start_year, month: start_month };
 
   let created = 0;
   let totalCents = 0;
+  let paidCents = 0;
 
   for (const line of lines) {
+    const firstNumber = Math.min(line.current_installment, line.installments_count);
+    const start = addMonths(reference, -(firstNumber - 1));
     const total = fromCents(toCents(line.installment_amount) * line.installments_count);
     const category = line.installments_count > 1 ? 'aprazo' : 'avista';
 
@@ -213,9 +217,9 @@ export async function createPurchasesBatchAction(
         category,
         total_amount: total,
         installments_count: line.installments_count,
-        purchase_date: purchaseDateOf(start_year, start_month),
-        start_year,
-        start_month,
+        purchase_date: purchaseDateOf(start.year, start.month),
+        start_year: start.year,
+        start_month: start.month,
         is_subscription: false,
       })
       .select('id')
@@ -230,17 +234,25 @@ export async function createPurchasesBatchAction(
       start,
     });
 
+    const now = new Date().toISOString();
     const { error: installmentsError } = await supabase.from('installments').insert(
-      plan.map((item) => ({
-        transaction_id: transaction.id,
-        user_id: user.id,
-        card_id: card_id ?? null,
-        installment_number: item.number,
-        installment_total: line.installments_count,
-        reference_year: item.month.year,
-        reference_month: item.month.month,
-        amount: item.amount,
-      })),
+      plan.map((item) => {
+        const alreadyPaid = item.number < firstNumber;
+        if (alreadyPaid) paidCents += toCents(item.amount);
+
+        return {
+          transaction_id: transaction.id,
+          user_id: user.id,
+          card_id: card_id ?? null,
+          installment_number: item.number,
+          installment_total: line.installments_count,
+          reference_year: item.month.year,
+          reference_month: item.month.month,
+          amount: item.amount,
+          is_paid: alreadyPaid,
+          paid_at: alreadyPaid ? now : null,
+        };
+      }),
     );
 
     if (installmentsError) return dbFail(installmentsError.message);
@@ -250,5 +262,11 @@ export async function createPurchasesBatchAction(
   }
 
   refresh();
-  return ok(`${created} compra(s) lançada(s) — total ${formatBRL(fromCents(totalCents))}.`);
+
+  const paidLabel =
+    paidCents > 0 ? ` (${formatBRL(fromCents(paidCents))} em parcelas já pagas)` : '';
+
+  return ok(
+    `${created} compra(s) lançada(s) — total ${formatBRL(fromCents(totalCents))}${paidLabel}.`,
+  );
 }

@@ -89,6 +89,14 @@ export async function toggleCardPaymentAction(formData: FormData): Promise<void>
     { onConflict: 'card_id,reference_year,reference_month' },
   );
 
+  // A fatura é paga como um todo: reflete o status nas parcelas do mês.
+  await supabase
+    .from('installments')
+    .update({ is_paid: paid, paid_at: paid ? new Date().toISOString() : null })
+    .eq('card_id', cardId)
+    .eq('reference_year', year)
+    .eq('reference_month', month);
+
   revalidatePath('/cartoes');
   revalidatePath('/mes');
   revalidatePath('/dashboard');

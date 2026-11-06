@@ -70,7 +70,7 @@ export function FixedBillRow({
           {bill.due_day ? (
             <span className="text-[11px] text-ink-muted">vence dia {bill.due_day}</span>
           ) : null}
-          {!entry ? <Badge tone="neutral">valor base</Badge> : null}
+          {!entry ? <Badge tone="neutral">estimado</Badge> : null}
           {overdue ? <Badge tone="negative">atrasada</Badge> : null}
           {saved ? <Badge tone="positive">salvo</Badge> : null}
         </div>

@@ -44,8 +44,17 @@ const FIELDS: EntityField[] = [
     hint: 'Usado apenas quando o tipo é parcelado',
   },
   {
+    name: 'current_installment',
+    label: 'Parcela atual',
+    type: 'number',
+    min: 1,
+    max: 120,
+    defaultValue: 1,
+    hint: 'Ex.: 11 de 12 — as anteriores entram como pagas',
+  },
+  {
     name: 'reference_month',
-    label: 'Mês inicial',
+    label: 'Mês da parcela',
     type: 'select',
     defaultValue: now.month,
     options: monthSelectOptions(),

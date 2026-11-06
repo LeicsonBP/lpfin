@@ -15,6 +15,7 @@ function readForm(formData: FormData) {
     amount: formData.get('amount'),
     kind: formData.get('kind') ?? 'fixed',
     installments_count: formData.get('installments_count') ?? 1,
+    current_installment: formData.get('current_installment') ?? 1,
     reference_year: formData.get('reference_year'),
     reference_month: formData.get('reference_month'),
   };
@@ -28,7 +29,8 @@ function refresh() {
 
 /**
  * Cria débito em folha. Quando `kind = installment`, gera uma linha por mês
- * (o valor informado é o valor de cada parcela — igual à planilha de referência).
+ * (o valor informado é o valor de cada parcela) e marca como pagas as parcelas
+ * anteriores à "parcela atual" informada.
  */
 export async function createPayrollDeductionAction(
   _prevState: ActionResult | undefined,
@@ -38,20 +40,37 @@ export async function createPayrollDeductionAction(
   const parsed = parseOrFail(payrollDeductionSchema, readForm(formData));
   if (!parsed.success) return parsed.result;
 
-  const { name, amount, kind, installments_count, reference_year, reference_month } = parsed.data;
+  const {
+    name,
+    amount,
+    kind,
+    installments_count,
+    current_installment,
+    reference_year,
+    reference_month,
+  } = parsed.data;
+
   const total = kind === 'fixed' ? 1 : Math.max(1, installments_count);
+  const current = kind === 'fixed' ? 1 : Math.min(current_installment, total);
+  const firstMonth = addMonths({ year: reference_year, month: reference_month }, -(current - 1));
+  const now = new Date().toISOString();
 
   const rows = Array.from({ length: total }, (_, index) => {
-    const month = addMonths({ year: reference_year, month: reference_month }, index);
+    const month = addMonths(firstMonth, index);
+    const position = index + 1;
+    const alreadyPaid = position < current;
+
     return {
       user_id: user.id,
       name,
       amount,
       kind,
-      installment_number: kind === 'fixed' ? null : index + 1,
+      installment_number: kind === 'fixed' ? null : position,
       installment_total: kind === 'fixed' ? null : total,
       reference_year: month.year,
       reference_month: month.month,
+      is_paid: alreadyPaid,
+      paid_at: alreadyPaid ? now : null,
     };
   });
 
@@ -59,7 +78,10 @@ export async function createPayrollDeductionAction(
   if (error) return dbFail(error.message);
 
   refresh();
-  return ok(total > 1 ? `${total} parcelas lançadas.` : 'Débito lançado.');
+
+  if (total === 1) return ok('Débito lançado.');
+  const paidLabel = current > 1 ? ` (${current - 1} parcela(s) anterior(es) paga(s))` : '';
+  return ok(`${total} parcelas lançadas${paidLabel}.`);
 }
 
 export async function updatePayrollDeductionAction(

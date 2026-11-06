@@ -24,7 +24,7 @@ export function BatchPurchaseForm({ cards }: { cards: CardModel[] }) {
   const [startMonth, setStartMonth] = useState(String(NOW.month));
   const [startYear, setStartYear] = useState(String(NOW.year));
   const [lines, setLines] = useState<PurchaseLineDraft[]>([
-    { key: 1, description: '', installment_amount: '', installments_count: 1 },
+    { key: 1, description: '', installment_amount: '', installments_count: 1, current_installment: 1 },
   ]);
   const [state, formAction] = useActionState<ActionResult | undefined, FormData>(
     createPurchasesBatchAction,
@@ -43,6 +43,7 @@ export function BatchPurchaseForm({ cards }: { cards: CardModel[] }) {
         description: '',
         installment_amount: '',
         installments_count: 1,
+        current_installment: 1,
       },
     ]);
   }
@@ -59,6 +60,7 @@ export function BatchPurchaseForm({ cards }: { cards: CardModel[] }) {
       description: line.description,
       installment_amount: line.installment_amount,
       installments_count: Number(line.installments_count) || 1,
+      current_installment: Number(line.current_installment) || 1,
     })),
   });
 
@@ -84,7 +86,7 @@ export function BatchPurchaseForm({ cards }: { cards: CardModel[] }) {
           </Select>
         </Field>
 
-        <Field label="Mês da 1ª parcela" htmlFor="batch-month">
+        <Field label="Mês da parcela" htmlFor="batch-month" hint="competência da parcela atual">
           <Select
             id="batch-month"
             value={startMonth}
@@ -119,6 +121,7 @@ export function BatchPurchaseForm({ cards }: { cards: CardModel[] }) {
             key={line.key}
             line={line}
             index={index}
+            reference={{ year: Number(startYear), month: Number(startMonth) }}
             onChange={updateLine}
             onRemove={removeLine}
             canRemove={lines.length > 1}
