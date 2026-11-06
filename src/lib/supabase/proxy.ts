@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { publicEnv } from '@/lib/env';
 
-const PUBLIC_PATHS = ['/login', '/auth'];
+const PUBLIC_PATHS = ['/login', '/auth', '/manifest.webmanifest'];
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));

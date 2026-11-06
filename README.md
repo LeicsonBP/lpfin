@@ -215,6 +215,28 @@ Revisão feita seguindo o padrão do App Router (Next 16) e as convenções usua
 - **Qualidade**: TypeScript `strict` + `noUncheckedIndexedAccess`, ESLint *flat config* e os
   scripts `typecheck`, `lint`, `test` e `build`.
 
+## PWA — instalar no celular
+
+O app pode ser instalado ("Instalar app" no Android / "Adicionar à Tela de Início" no iOS):
+
+- **`src/app/manifest.ts`** → `/manifest.webmanifest` com `name`, `short_name`, `start_url=/mes`,
+  `display=standalone`, `background_color` e `theme_color`.
+- **Ícones** gerados por `npm run logo` (`scripts/build-logo.mjs`, usa `sharp`):
+
+  | Arquivo | Uso |
+  |---|---|
+  | `public/icons/icon-192.png` / `icon-512.png` | atalho e instalação (Android/desktop) |
+  | `public/icons/maskable-192.png` / `maskable-512.png` | ícone adaptativo (logo na safe zone de 58%) |
+  | `src/app/apple-icon.png` (180×180) | iOS (`apple-touch-icon` automático) |
+  | `src/app/icon.svg` (512px) | favicon da aba do navegador — preto, sem fundo |
+
+- **Estilo do ícone instalado**: gradiente **verde escuro → verde claro** com o logo **branco**
+  centralizado (diferente do favicon da aba, que é preto e sem fundo).
+- Para trocar a arte: substitua `src/components/brand/lp-logo.svg` e rode **`npm run logo`** — o
+  componente React, o favicon e todos os PNGs são regenerados juntos.
+- `manifest.webmanifest` e os ícones são **públicos** (excluídos do guard de sessão em
+  `src/proxy.ts`), senão o navegador não consegue ler o manifest antes do login.
+
 ## Deploy na Vercel
 
 ### 1) Subir o projeto (recomendado: importar pelo painel)

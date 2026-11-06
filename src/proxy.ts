@@ -15,8 +15,8 @@ export const config = {
     /*
      * Roda em todas as rotas, exceto:
      * - _next/static, _next/image (build/assets)
-     * - favicon.ico e imagens
+     * - favicon, imagens e manifest (precisam ser públicos)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)',
   ],
 };

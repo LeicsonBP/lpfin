@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   title: 'LPFIN — Controle Financeiro Pessoal',
   description:
     'Controle financeiro pessoal com visão mensal, parcelamentos e projeção de cenários futuros.',
+  applicationName: 'LPFIN',
+  appleWebApp: {
+    capable: true,
+    title: 'LPFIN',
+    statusBarStyle: 'default',
+  },
 };
 
 export const viewport: Viewport = {
