@@ -37,8 +37,10 @@ export default async function MesPage({
         <div className="space-y-4 lg:col-span-3">
           <CardsSection
             cards={data.cards}
+            cardPayments={data.cardPayments}
             installments={data.installments}
             transactions={data.transactions}
+            reference={reference}
             monthLabel={monthLabel}
           />
         </div>

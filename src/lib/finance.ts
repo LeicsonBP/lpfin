@@ -500,13 +500,13 @@ export interface ForecastInput {
  * Projeção dos próximos meses.
  * - Contas fixas: média histórica real (janela de 3 a 6 meses), com fallback no valor base.
  * - Parcelas: soma exata das parcelas já geradas (respeita ajustes individuais).
- * - Categoria "Outros": média histórica, descontando o que já está agendado no mês.
+ * - Compras à vista: média histórica, descontando o que já está agendado no mês.
  */
 export function forecastNextMonths(input: ForecastInput): ForecastMonth[] {
   const monthsAhead = input.monthsAhead ?? 6;
   const historyWindow = input.historyWindow ?? 6;
   const categoryWindow = input.categoryWindow ?? 3;
-  const projectionCategory = input.projectionCategory ?? 'outros';
+  const projectionCategory = input.projectionCategory ?? 'avista';
 
   const fixedDetails: ForecastDetail[] = input.fixedBills
     .filter((bill) => bill.is_active)
@@ -576,6 +576,71 @@ export function lastCommitmentMonth(installments: readonly Installment[]): Month
     const current = { year: installment.reference_year, month: installment.reference_month };
     return compareMonths(current, latest) > 0 ? current : latest;
   }, { year: first.reference_year, month: first.reference_month });
+}
+
+/* -------------------------------------------------------------------------- */
+/* Limite do cartão                                                            */
+/* -------------------------------------------------------------------------- */
+
+export interface CardLimitSummary {
+  /** parcelas em aberto no mês de referência (fatura atual) */
+  currentInvoice: number;
+  /** parcelas em aberto de meses anteriores (atrasadas) */
+  overdue: number;
+  /** parcelas em aberto de meses futuros */
+  futureInstallments: number;
+  /** já pago */
+  paid: number;
+  /** fatura atual + atrasadas + futuras (o que ainda vai consumir limite) */
+  committed: number;
+  /** limite disponível depois de descontar o comprometido */
+  available: number;
+  /** percentual do limite comprometido (0-100) */
+  usedPercent: number;
+}
+
+/**
+ * Calcula o limite restante do cartão considerando a fatura do mês,
+ * parcelas atrasadas e todas as parcelas futuras já geradas.
+ */
+export function summarizeCardLimit(params: {
+  limit: number;
+  installments: readonly Installment[];
+  reference: MonthRef;
+}): CardLimitSummary {
+  let currentCents = 0;
+  let overdueCents = 0;
+  let futureCents = 0;
+  let paidCents = 0;
+
+  for (const installment of params.installments) {
+    const cents = toCents(installment.amount);
+    const month = { year: installment.reference_year, month: installment.reference_month };
+
+    if (installment.is_paid) {
+      paidCents += cents;
+      continue;
+    }
+
+    const diff = monthsBetween(params.reference, month);
+    if (diff === 0) currentCents += cents;
+    else if (diff > 0) futureCents += cents;
+    else overdueCents += cents;
+  }
+
+  const committedCents = currentCents + overdueCents + futureCents;
+  const limitCents = toCents(params.limit);
+
+  return {
+    currentInvoice: fromCents(currentCents),
+    overdue: fromCents(overdueCents),
+    futureInstallments: fromCents(futureCents),
+    paid: fromCents(paidCents),
+    committed: fromCents(committedCents),
+    available: fromCents(limitCents - committedCents),
+    usedPercent:
+      limitCents > 0 ? Math.min(100, Math.round((committedCents / limitCents) * 100)) : 0,
+  };
 }
 
 

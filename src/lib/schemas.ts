@@ -75,6 +75,10 @@ export const incomeSchema = z.object({
   reference_month: monthSchema,
   kind: z.enum(['salary', 'extra', 'other']).default('salary'),
   is_received: z.boolean().default(false),
+  /** ganho recorrente (ex.: salário): gera as ocorrências dos meses seguintes */
+  is_recurring: z.boolean().default(false),
+  /** quantos meses gerar à frente quando for recorrente */
+  recurrence_months: z.coerce.number().int().min(1).max(36).default(24),
 });
 
 export const payrollDeductionSchema = z
@@ -98,18 +102,41 @@ export const transactionSchema = z.object({
     .uuid('Cartão inválido')
     .optional()
     .or(z.literal('').transform(() => undefined)),
-  category: z.string().trim().min(1, 'Informe a categoria').max(40).default('outros'),
+  /** apenas à vista ou à prazo */
+  category: z.enum(['avista', 'aprazo']).default('avista'),
   total_amount: moneySchema,
   installments_count: z.coerce
     .number()
     .int('Número de parcelas inválido')
     .min(1, 'Mínimo de 1 parcela')
     .max(120, 'Máximo de 120 parcelas'),
-  purchase_date: z.coerce.date(),
   /** Mês da primeira parcela (respeita o fechamento do cartão) */
   start_year: yearSchema,
   start_month: monthSchema,
   is_subscription: z.boolean().default(false),
+});
+
+/** Uma linha do cadastro em lote: valor da parcela × quantidade. */
+export const purchaseLineSchema = z.object({
+  description: nameSchema,
+  installment_amount: moneySchema,
+  installments_count: z.coerce
+    .number()
+    .int('Número de parcelas inválido')
+    .min(1, 'Mínimo de 1 parcela')
+    .max(120, 'Máximo de 120 parcelas'),
+});
+
+/** Cadastro de várias compras no mesmo cartão, de uma só vez. */
+export const purchaseBatchSchema = z.object({
+  card_id: z
+    .string()
+    .uuid('Cartão inválido')
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
+  start_year: yearSchema,
+  start_month: monthSchema,
+  lines: z.array(purchaseLineSchema).min(1, 'Informe ao menos uma compra').max(25),
 });
 
 export const loginSchema = z.object({

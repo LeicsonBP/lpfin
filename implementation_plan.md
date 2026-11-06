@@ -147,6 +147,38 @@ RLS habilitado em todas as tabelas, com 4 policies por tabela (`select/insert/up
 | Tentativa de gravar `user_id` de terceiro | **403** (`row-level security policy`) |
 | Limpeza do usuário de teste | 200 (cascade zerou as tabelas) |
 
+
+---
+
+## [Ajustes v2] — rodada de refinamentos solicitada pelo usuário
+
+| # | Pedido | Implementação |
+|---|---|---|
+| 1 | Seletor Dark/Light | Tokens em `globals.css` (`:root` + `.dark` + `@theme inline`), `ThemeToggle` persistindo em **cookie** lido no `RootLayout` (`<html class="dark">`, sem flash). Paleta escura com tons mais claros (primary `#8ce7c4`, positivo `#6ee7a8`, negativo `#ff8a80`). |
+| 2 | Compras: 1 cartão + várias contas, sem data, valor da parcela × quantidade, 2 categorias | `BatchPurchaseForm` + `PurchaseLineRow`; ação `createPurchasesBatchAction` (payload JSON); `purchaseBatchSchema`; total = parcela × quantidade; `purchase_date` = 1º dia do mês da 1ª parcela; categorias restritas a `avista`/`aprazo` (constraint no banco). |
+| 3 | Cartões: seletor de cor + limite restante | `ColorPicker` (grade de 70 cores + hexadecimal) e nota de limite por cartão com `summarizeCardLimit` (fatura atual, atrasadas, futuras, disponível, % comprometido). |
+| 4 | Checkbox mensal de pago por cartão e por conta fixa (folha sem checkbox) | Nova tabela `card_payments` (unique por cartão/mês) + `toggleCardPaymentAction`; contas fixas com `toggleFixedBillEntryPaidAction` usando **upsert** (funciona mesmo sem lançamento); folha marcada como "automático" e sem toggle. |
+| 5 | Ganhos recorrentes com ajuste preservando histórico | `incomes.series_id` + `is_recurring`; `createIncomeAction` gera N ocorrências (até 36 meses); `adjustRecurringIncomeAction` atualiza só do mês escolhido em diante; UI de "Recorrências" na página de ganhos. |
+| 6 | Botão do Google ilegível | `SubmitButton` ganhou variantes (`primary`/`outline`/`ghost`); login usa `variant="outline"` (fundo `surface`, texto `ink`). |
+| 7 | Seletor de mês/ano além das setas | `MonthPicker` com popover: grade de 12 meses, navegação por ano e botão "Ir para o mês atual". |
+| 8 | Logotipo | Monograma **LP** caligráfico em `src/components/brand/logo.tsx` (`LpMark`, `LpWordmark`) + favicon `src/app/icon.svg`; aplicado no login, sidebar e topo mobile. |
+
+### Migration 0004
+
+`supabase/migrations/20250101000300_categories_cards_recurrence.sql`: constraint de categoria,
+tabela `card_payments` (+RLS +trigger), colunas `series_id`/`is_recurring` em `incomes` e índice
+único `(series_id, reference_year, reference_month)`.
+
+### Validação de ponta a ponta (API real, dados removidos)
+
+- Compra em lote: `1x` (à vista) e `4x` (à prazo) → `201` + parcelas geradas.
+- Categoria `outros` rejeitada pelo banco (`400`).
+- `card_payments` upsert `is_paid = true` → `201`.
+- Ganho recorrente em 3 meses → `201`; tentativa duplicada barrada (`409`).
+- Ajuste a partir de dezembro: out/nov permanecem `8000`, dez vira `9500` → comportamento correto.
+- Tema: `GET /login` sem cookie → `<html lang="pt-BR">`; com `lpfin-theme=dark` → `<html class="dark">`.
+- `npm run build` (12 rotas) · `npm test` (14 testes) · `npm run lint` (exit 0).
+
 ### Commits
 
 - `chore: setup Next.js 16, schema Supabase e motor financeiro`

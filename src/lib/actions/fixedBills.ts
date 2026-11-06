@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { requireUser } from '@/lib/data/session';
+import { parseMoneyInput } from '@/lib/money';
 import { fixedBillEntrySchema, fixedBillSchema } from '@/lib/schemas';
 import type { ActionResult } from '@/lib/types';
 
@@ -107,16 +108,43 @@ export async function upsertFixedBillEntryAction(
   return ok('Valor atualizado.');
 }
 
+/**
+ * Marca a conta fixa como paga/pendente no mês.
+ * Se ainda não existir lançamento do mês, cria um com o valor informado
+ * (valor base da conta por padrão).
+ */
 export async function toggleFixedBillEntryPaidAction(formData: FormData): Promise<void> {
-  const id = formData.get('id');
+  const entryId = formData.get('id');
   const paid = formData.get('paid') === 'true';
-  if (typeof id !== 'string' || id === '') return;
+  const billId = formData.get('fixed_bill_id');
+  const year = Number(formData.get('year'));
+  const month = Number(formData.get('month'));
+  const amountRaw = formData.get('amount');
 
-  const { supabase } = await requireUser();
-  await supabase
-    .from('fixed_bills_entries')
-    .update({ is_paid: paid, paid_at: paid ? new Date().toISOString() : null })
-    .eq('id', id);
+  const { supabase, user } = await requireUser();
+  const patch = { is_paid: paid, paid_at: paid ? new Date().toISOString() : null };
+
+  if (typeof entryId === 'string' && entryId !== '') {
+    await supabase.from('fixed_bills_entries').update(patch).eq('id', entryId);
+  } else if (
+    typeof billId === 'string' &&
+    billId !== '' &&
+    Number.isInteger(year) &&
+    Number.isInteger(month)
+  ) {
+    const parsedAmount = parseMoneyInput(amountRaw);
+    await supabase.from('fixed_bills_entries').upsert(
+      {
+        user_id: user.id,
+        fixed_bill_id: billId,
+        reference_year: year,
+        reference_month: month,
+        amount: Number.isFinite(parsedAmount) ? parsedAmount : 0,
+        ...patch,
+      },
+      { onConflict: 'fixed_bill_id,reference_year,reference_month' },
+    );
+  }
 
   refresh();
 }

@@ -133,8 +133,26 @@ src/
 - **Balanço do mês**: `Ganhos − (Cartões + Contas Fixas + Folha)`, verde se positivo e vermelho
   se negativo.
 - **Projeção futura** (`forecastNextMonths`): contas fixas pela média histórica real
-  (fallback no valor base), parcelas pela soma exata já agendada e categoria `outros` pela média
+  (fallback no valor base), parcelas pela soma exata já agendada e compras **à vista** pela média
   histórica (descontando o que já está agendado no mês).
+
+### Ajustes da segunda rodada (v2)
+
+- **Tema claro/escuro** com persistência em `localStorage` e paleta escura de maior contraste
+  (`ThemeToggle`, tokens em `globals.css` via `@theme inline` + custom variant `dark`).
+- **Identidade visual**: monograma **LP** (`src/components/brand/logo.tsx`) usado no login,
+  na sidebar e no favicon (`src/app/icon.svg`).
+- **Seletor de competência** (`MonthPicker`): setas + popover com grade de meses e navegação por ano.
+- **Compras em lote**: um cartão por lote, várias compras, informando **valor da parcela ×
+  quantidade** (o total é calculado). A data da compra não é mais solicitada.
+- **Categorias de compra**: apenas **à vista** e **à prazo** (constraint `transactions_category_check`).
+- **Cartões**: seletor de cor em grade (paleta + hexadecimal), **limite restante** calculado com
+  fatura do mês + parcelas atrasadas + futuras (`summarizeCardLimit`) e **checkbox mensal de fatura
+  paga** (`card_payments`).
+- **Contas fixas**: checkbox de pago por mês mesmo sem lançamento (upsert automático do valor real).
+- **Débitos em folha**: sem checkbox — são recorrentes/automáticos (badge "automático").
+- **Ganhos recorrentes**: geração automática de até 36 meses com `series_id` e ajuste de valor
+  a partir de um mês (preserva o histórico anterior).
 
 ## Deploy na Vercel
 

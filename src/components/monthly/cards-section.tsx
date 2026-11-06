@@ -1,26 +1,39 @@
 import { Card, EmptyState, SectionTitle } from '@/components/ui/kit';
+import { GhostSubmitButton } from '@/components/ui/submit-button';
+import { toggleCardPaymentAction } from '@/lib/actions/cards';
 import { formatBRL } from '@/lib/format';
 import { groupByCard } from '@/lib/finance';
-import type { Card as CardModel, Installment, Transaction } from '@/lib/types';
+import type {
+  Card as CardModel,
+  CardPayment,
+  Installment,
+  MonthRef,
+  Transaction,
+} from '@/lib/types';
 
 import { InstallmentRow } from './installment-row';
 
 /**
  * Bloco "Cartões" da visão mensal: uma coluna por cartão, com as compras
- * ativas no mês (parcelas) — igual à planilha de referência.
+ * ativas no mês (parcelas) e o checkbox de fatura paga.
  */
 export function CardsSection({
   cards,
+  cardPayments,
   installments,
   transactions,
+  reference,
   monthLabel,
 }: {
   cards: CardModel[];
+  cardPayments: CardPayment[];
   installments: Installment[];
   transactions: Transaction[];
+  reference: MonthRef;
   monthLabel: string;
 }) {
   const descriptionById = new Map(transactions.map((item) => [item.id, item.description] as const));
+  const paymentByCard = new Map(cardPayments.map((item) => [item.card_id, item] as const));
 
   const byCard = new Map<string, Installment[]>();
   for (const installment of installments) {
@@ -81,6 +94,29 @@ export function CardsSection({
                     className="h-full rounded-full bg-brand-600"
                     style={{ width: `${usedPercent}%` }}
                   />
+                </div>
+
+                <div className="mt-2 flex items-center justify-between gap-2 rounded-lg bg-surface-muted px-2 py-1.5">
+                  <span className="text-[11px] font-medium text-ink-muted">Fatura paga?</span>
+                  <form action={toggleCardPaymentAction} className="flex items-center gap-1">
+                    <input type="hidden" name="card_id" value={card.id} />
+                    <input type="hidden" name="year" value={reference.year} />
+                    <input type="hidden" name="month" value={reference.month} />
+                    <input
+                      type="hidden"
+                      name="paid"
+                      value={paymentByCard.get(card.id)?.is_paid ? 'false' : 'true'}
+                    />
+                    <GhostSubmitButton
+                      className={
+                        paymentByCard.get(card.id)?.is_paid
+                          ? 'border-positive bg-positive-soft text-positive'
+                          : ''
+                      }
+                    >
+                      {paymentByCard.get(card.id)?.is_paid ? 'Sim' : 'Não'}
+                    </GhostSubmitButton>
+                  </form>
                 </div>
 
                 {list.length === 0 ? (

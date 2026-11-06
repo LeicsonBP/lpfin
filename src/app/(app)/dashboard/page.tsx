@@ -146,9 +146,9 @@ export default async function DashboardPage({
             </p>
           </li>
           <li className="rounded-xl border border-line p-3">
-            <p className="text-sm font-semibold text-ink">Categoria &ldquo;Outros&rdquo;</p>
+            <p className="text-sm font-semibold text-ink">Compras à vista</p>
             <p className="mt-1">
-              Média histórica de novas compras, descontando o que já está agendado no mês.
+              Média histórica de novas compras à vista, descontando o que já está agendado no mês.
             </p>
           </li>
         </ul>

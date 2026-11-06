@@ -13,6 +13,7 @@ import {
   parseMonthParam,
   splitInstallments,
   suggestFirstInstallmentMonth,
+  summarizeCardLimit,
   summarizeMonth,
 } from '@/lib/finance';
 import type {
@@ -101,7 +102,7 @@ function makeTransaction(overrides: Partial<Transaction> = {}): Transaction {
     user_id: 'user-1',
     card_id: 'card-1',
     description: 'Compra',
-    category: 'outros',
+    category: 'aprazo',
     total_amount: 300,
     installments_count: 3,
     purchase_date: '2026-09-10',
@@ -174,6 +175,8 @@ describe('resumo mensal', () => {
     kind: 'salary',
     is_received: true,
     received_at: null,
+    series_id: null,
+    is_recurring: false,
     created_at: '2026-01-01T00:00:00Z',
     updated_at: '2026-01-01T00:00:00Z',
   };
@@ -299,8 +302,8 @@ describe('médias e projeção futura', () => {
     ];
 
     const transactions = [
-      makeTransaction({ id: 'tx-parcelada', category: 'compras' }),
-      makeTransaction({ id: 'tx-outros', category: 'outros' }),
+      makeTransaction({ id: 'tx-parcelada', category: 'aprazo' }),
+      makeTransaction({ id: 'tx-outros', category: 'avista' }),
     ];
 
     const forecast = forecastNextMonths({
@@ -340,6 +343,29 @@ describe('médias e projeção futura', () => {
     ]);
     expect(series[1]?.fixed).toBe(50);
     expect(series[2]?.total).toBe(100);
+  });
+});
+
+describe('limite do cartão', () => {
+  it('desconta fatura atual, parcelas atrasadas e futuras do limite', () => {
+    const summary = summarizeCardLimit({
+      limit: 5000,
+      reference: { year: 2026, month: 10 },
+      installments: [
+        makeInstallment({ id: 'a', amount: 1000, reference_month: 10 }),
+        makeInstallment({ id: 'b', amount: 500, reference_month: 9 }),
+        makeInstallment({ id: 'c', amount: 300, reference_month: 11 }),
+        makeInstallment({ id: 'd', amount: 200, reference_month: 8, is_paid: true }),
+      ],
+    });
+
+    expect(summary.currentInvoice).toBe(1000);
+    expect(summary.overdue).toBe(500);
+    expect(summary.futureInstallments).toBe(300);
+    expect(summary.paid).toBe(200);
+    expect(summary.committed).toBe(1800);
+    expect(summary.available).toBe(3200);
+    expect(summary.usedPercent).toBe(36);
   });
 });
 

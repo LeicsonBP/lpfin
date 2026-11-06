@@ -96,28 +96,26 @@ export function FixedBillRow({
           )}
         />
 
-        {entry ? (
-          <form action={toggleFixedBillEntryPaidAction}>
-            <input type="hidden" name="id" value={entry.id} />
-            <input type="hidden" name="paid" value={entry.is_paid ? 'false' : 'true'} />
-            <button
-              type="submit"
-              title={entry.is_paid ? 'Marcar como pendente' : 'Marcar como pago'}
-              className={clsx(
-                'inline-flex size-7 items-center justify-center rounded-full border transition',
-                entry.is_paid
-                  ? 'border-positive bg-positive-soft text-positive'
-                  : 'border-line text-ink-muted hover:border-brand-400 hover:text-brand-700',
-              )}
-            >
-              <Check className="size-3.5" />
-            </button>
-          </form>
-        ) : (
-          <span className="inline-flex size-7 items-center justify-center rounded-full border border-dashed border-line text-ink-muted">
-            <Check className="size-3.5 opacity-40" />
-          </span>
-        )}
+        <form action={toggleFixedBillEntryPaidAction}>
+          {entry ? <input type="hidden" name="id" value={entry.id} /> : null}
+          <input type="hidden" name="fixed_bill_id" value={bill.id} />
+          <input type="hidden" name="year" value={reference.year} />
+          <input type="hidden" name="month" value={reference.month} />
+          <input type="hidden" name="amount" value={value} />
+          <input type="hidden" name="paid" value={entry?.is_paid ? 'false' : 'true'} />
+          <button
+            type="submit"
+            title={entry?.is_paid ? 'Marcar como pendente' : 'Marcar como pago'}
+            className={clsx(
+              'inline-flex size-7 items-center justify-center rounded-full border transition',
+              entry?.is_paid
+                ? 'border-positive bg-positive-soft text-positive'
+                : 'border-line text-ink-muted hover:border-brand-400 hover:text-brand-700',
+            )}
+          >
+            <Check className="size-3.5" />
+          </button>
+        </form>
       </div>
     </li>
   );

@@ -63,6 +63,37 @@ export async function updateCardAction(
   return ok('Cartão atualizado.');
 }
 
+/**
+ * Marca a fatura do cartão como paga/pendente no mês (upsert).
+ * Cria a linha em `card_payments` se ainda não existir.
+ */
+export async function toggleCardPaymentAction(formData: FormData): Promise<void> {
+  const cardId = formData.get('card_id');
+  const year = Number(formData.get('year'));
+  const month = Number(formData.get('month'));
+  const paid = formData.get('paid') === 'true';
+
+  if (typeof cardId !== 'string' || cardId === '') return;
+  if (!Number.isInteger(year) || !Number.isInteger(month)) return;
+
+  const { supabase, user } = await requireUser();
+  await supabase.from('card_payments').upsert(
+    {
+      user_id: user.id,
+      card_id: cardId,
+      reference_year: year,
+      reference_month: month,
+      is_paid: paid,
+      paid_at: paid ? new Date().toISOString() : null,
+    },
+    { onConflict: 'card_id,reference_year,reference_month' },
+  );
+
+  revalidatePath('/cartoes');
+  revalidatePath('/mes');
+  revalidatePath('/dashboard');
+}
+
 export async function deleteCardAction(formData: FormData): Promise<void> {
   const id = formData.get('id');
   if (typeof id !== 'string' || id === '') return;
@@ -71,3 +102,4 @@ export async function deleteCardAction(formData: FormData): Promise<void> {
   await supabase.from('cards').delete().eq('id', id);
   refresh();
 }
+

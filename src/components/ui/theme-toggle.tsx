@@ -1,51 +1,31 @@
 'use client';
 
 import { Moon, Sun } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark';
+const COOKIE_NAME = 'lpfin-theme';
 
-const STORAGE_KEY = 'lpfin-theme';
-
-function applyTheme(theme: Theme) {
-  document.documentElement.classList.toggle('dark', theme === 'dark');
-}
-
-/** Alterna entre tema claro e escuro (persistido em localStorage). */
+/**
+ * Alterna entre tema claro e escuro.
+ * O tema é gravado em cookie (lido no servidor) para não haver "flash" de tema
+ * ao navegar; o ícone exibido é decidido pela classe `.dark` no <html>.
+ */
 export function ThemeToggle({ className = '' }: { className?: string }) {
-  const [theme, setTheme] = useState<Theme>('light');
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    const initial: Theme =
-      stored === 'dark' || stored === 'light'
-        ? stored
-        : window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light';
-
-    setTheme(initial);
-    applyTheme(initial);
-    setReady(true);
-  }, []);
-
   function toggle() {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    window.localStorage.setItem(STORAGE_KEY, next);
-    applyTheme(next);
+    const root = document.documentElement;
+    const isDark = root.classList.toggle('dark');
+    document.cookie = `${COOKIE_NAME}=${isDark ? 'dark' : 'light'}; path=/; max-age=31536000; samesite=lax`;
   }
 
   return (
     <button
       type="button"
       onClick={toggle}
-      aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
-      title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+      aria-label="Alternar entre tema claro e escuro"
+      title="Alternar tema"
       className={`inline-flex size-9 items-center justify-center rounded-xl border border-line bg-surface text-ink-muted transition hover:border-brand-400 hover:text-brand-700 ${className}`}
     >
-      {ready && theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      <Moon className="size-4 dark:hidden" />
+      <Sun className="hidden size-4 dark:block" />
     </button>
   );
 }

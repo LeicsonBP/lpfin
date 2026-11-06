@@ -1,18 +1,23 @@
 import { AppHeader } from '@/components/layout/nav';
+import { BatchPurchaseForm } from '@/components/forms/batch-purchase-form';
 import { EntityForm } from '@/components/forms/entity-form';
 import { Badge, Card, EmptyState, SectionTitle } from '@/components/ui/kit';
 import { GhostSubmitButton } from '@/components/ui/submit-button';
 import {
-  createTransactionAction,
   deleteTransactionAction,
   updateTransactionAction,
 } from '@/lib/actions/transactions';
 import { listCards } from '@/lib/data/cards';
 import { listInstallments, listTransactions } from '@/lib/data/transactions';
-import { formatBRL, formatDateBR } from '@/lib/format';
+import { formatBRL } from '@/lib/format';
 import type { Installment } from '@/lib/types';
 
 import { installmentRange, transactionFields } from './transaction-fields';
+
+const CATEGORY_LABEL: Record<string, string> = {
+  avista: 'À vista',
+  aprazo: 'À prazo',
+};
 
 export default async function ComprasPage() {
   const [transactions, cards, installments] = await Promise.all([
@@ -42,14 +47,10 @@ export default async function ComprasPage() {
 
       <Card>
         <SectionTitle
-          title="Nova compra"
-          description="O motor de parcelamento distribui o total em centavos e cria as parcelas"
+          title="Nova compra (em lote)"
+          description="Um cartão por lote · informe o valor da parcela e a quantidade — pode lançar várias compras de uma vez"
         />
-        <EntityForm
-          action={createTransactionAction}
-          fields={transactionFields(cards)}
-          submitLabel="Salvar compra"
-        />
+        <BatchPurchaseForm cards={cards} />
       </Card>
 
       <Card>
@@ -72,7 +73,9 @@ export default async function ComprasPage() {
                     <div className="min-w-0">
                       <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-ink">
                         {transaction.description}
-                        <Badge tone="brand">{transaction.category}</Badge>
+                        <Badge tone="brand">
+                          {CATEGORY_LABEL[transaction.category] ?? transaction.category}
+                        </Badge>
                         {transaction.is_subscription ? (
                           <Badge tone="warning">assinatura</Badge>
                         ) : null}
@@ -81,8 +84,8 @@ export default async function ComprasPage() {
                         {transaction.card_id
                           ? (cardName.get(transaction.card_id) ?? 'Cartão')
                           : 'Sem cartão'}{' '}
-                        · {formatDateBR(transaction.purchase_date)} · {transaction.installments_count}x
-                        · {installmentRange(list)} · {paid}/{list.length} pagas
+                        · {transaction.installments_count}x · {installmentRange(list)} · {paid}/
+                        {list.length} pagas
                       </p>
                     </div>
 

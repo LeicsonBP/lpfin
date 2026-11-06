@@ -7,10 +7,12 @@ import { SubmitButton } from '@/components/ui/submit-button';
 import { Field, Input, MoneyInput, Select } from '@/components/ui/kit';
 import type { ActionResult } from '@/lib/types';
 
+import { ColorPicker } from './color-picker';
+
 export interface EntityField {
   name: string;
-  label: string;
-  type?: 'text' | 'money' | 'date' | 'select' | 'checkbox' | 'hidden' | 'number';
+  label?: string;
+  type?: 'text' | 'money' | 'date' | 'select' | 'checkbox' | 'hidden' | 'number' | 'color';
   defaultValue?: string | number | boolean | null;
   options?: { value: string; label: string }[];
   placeholder?: string;
@@ -91,7 +93,7 @@ export function EntityForm({
           return (
             <Field
               key={field.name}
-              label={field.label}
+              label={field.label ?? field.name}
               htmlFor={inputId}
               error={error}
               hint={field.hint}
@@ -113,6 +115,15 @@ export function EntityForm({
                     </option>
                   ))}
                 </Select>
+              ) : field.type === 'color' ? (
+                <ColorPicker
+                  name={field.name}
+                  defaultValue={
+                    typeof field.defaultValue === 'string' && field.defaultValue
+                      ? field.defaultValue
+                      : '#0e6855'
+                  }
+                />
               ) : field.type === 'money' ? (
                 <MoneyInput
                   id={inputId}

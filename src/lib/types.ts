@@ -60,16 +60,22 @@ export interface Income {
   kind: IncomeKind;
   is_received: boolean;
   received_at: ISODateTime | null;
+  /** agrupa as ocorrências de um ganho recorrente */
+  series_id: UUID | null;
+  is_recurring: boolean;
   created_at: ISODateTime;
   updated_at: ISODateTime;
 }
+
+/** Compras: apenas à vista ou à prazo (parceladas). */
+export type TransactionCategory = 'avista' | 'aprazo';
 
 export interface Transaction {
   id: UUID;
   user_id: UUID;
   card_id: UUID | null;
   description: string;
-  category: string;
+  category: TransactionCategory;
   total_amount: number;
   installments_count: number;
   purchase_date: ISODate;
@@ -77,6 +83,19 @@ export interface Transaction {
   start_month: number;
   is_subscription: boolean;
   notes: string | null;
+  created_at: ISODateTime;
+  updated_at: ISODateTime;
+}
+
+/** Fatura do cartão em um mês (checkbox "pago"). */
+export interface CardPayment {
+  id: UUID;
+  user_id: UUID;
+  card_id: UUID;
+  reference_year: number;
+  reference_month: number;
+  is_paid: boolean;
+  paid_at: ISODateTime | null;
   created_at: ISODateTime;
   updated_at: ISODateTime;
 }

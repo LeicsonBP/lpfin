@@ -1,11 +1,6 @@
 import type { EntityField } from '@/components/forms/entity-form';
 import { currentMonth } from '@/lib/finance';
-import {
-  TRANSACTION_CATEGORIES,
-  formatMonthLabel,
-  monthSelectOptions,
-  yearSelectOptions,
-} from '@/lib/format';
+import { formatMonthLabel, monthSelectOptions, yearSelectOptions } from '@/lib/format';
 import type { Card as CardModel, Installment, Transaction } from '@/lib/types';
 
 const now = currentMonth();
@@ -36,8 +31,12 @@ export function transactionFields(
       name: 'category',
       label: 'Categoria',
       type: 'select',
-      defaultValue: transaction?.category ?? 'outros',
-      options: TRANSACTION_CATEGORIES.map((category) => ({ value: category, label: category })),
+      defaultValue: transaction?.category ?? 'avista',
+      options: [
+        { value: 'avista', label: 'À vista' },
+        { value: 'aprazo', label: 'À prazo' },
+      ],
+      hint: 'À prazo = parcelada',
     },
     {
       name: 'total_amount',
@@ -55,13 +54,6 @@ export function transactionFields(
       required: true,
       defaultValue: transaction?.installments_count ?? 1,
       hint: 'As parcelas são geradas automaticamente',
-    },
-    {
-      name: 'purchase_date',
-      label: 'Data da compra',
-      type: 'date',
-      required: true,
-      defaultValue: transaction?.purchase_date ?? new Date().toISOString().slice(0, 10),
     },
     {
       name: 'start_month',

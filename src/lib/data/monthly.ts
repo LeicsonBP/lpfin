@@ -1,4 +1,5 @@
 import { listCards } from '@/lib/data/cards';
+import { listCardPayments } from '@/lib/data/cardPayments';
 import { listFixedBillEntries, listFixedBills } from '@/lib/data/fixedBills';
 import { listIncomes } from '@/lib/data/incomes';
 import { listPayroll } from '@/lib/data/payroll';
@@ -6,6 +7,7 @@ import { listInstallments, listTransactions } from '@/lib/data/transactions';
 import { addMonths, currentMonth } from '@/lib/finance';
 import type {
   Card,
+  CardPayment,
   FixedBill,
   FixedBillEntry,
   Income,
@@ -18,6 +20,7 @@ import type {
 export interface MonthData {
   reference: MonthRef;
   cards: Card[];
+  cardPayments: CardPayment[];
   installments: Installment[];
   transactions: Transaction[];
   fixedBills: FixedBill[];
@@ -28,9 +31,10 @@ export interface MonthData {
 
 /** Tudo que a Visão Mensal precisa, filtrado por competência. */
 export async function getMonthData(reference: MonthRef): Promise<MonthData> {
-  const [cards, installments, transactions, fixedBills, fixedEntries, incomes, payroll] =
+  const [cards, cardPayments, installments, transactions, fixedBills, fixedEntries, incomes, payroll] =
     await Promise.all([
       listCards(),
+      listCardPayments(reference),
       listInstallments({ from: reference, to: reference }),
       listTransactions(),
       listFixedBills(),
@@ -42,6 +46,7 @@ export async function getMonthData(reference: MonthRef): Promise<MonthData> {
   return {
     reference,
     cards,
+    cardPayments,
     installments,
     transactions,
     fixedBills,

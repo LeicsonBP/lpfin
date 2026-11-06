@@ -2,13 +2,18 @@ import { AppHeader } from '@/components/layout/nav';
 import { EntityForm, type EntityField } from '@/components/forms/entity-form';
 import { Badge, Card, EmptyState, SectionTitle } from '@/components/ui/kit';
 import { GhostSubmitButton } from '@/components/ui/submit-button';
-import { deleteIncomeAction, toggleIncomeReceivedAction } from '@/lib/actions/incomes';
-import { createIncomeAction } from '@/lib/actions/incomes';
+import {
+  adjustRecurringIncomeAction,
+  createIncomeAction,
+  deleteIncomeAction,
+  toggleIncomeReceivedAction,
+} from '@/lib/actions/incomes';
 import { listIncomes } from '@/lib/data/incomes';
-import { currentMonth } from '@/lib/finance';
+import { currentMonth, monthKey } from '@/lib/finance';
 import { formatBRL, formatMonthLabel, monthSelectOptions, yearSelectOptions } from '@/lib/format';
+import type { Income, MonthRef } from '@/lib/types';
 
-const now = currentMonth();
+const NOW = currentMonth();
 
 const FIELDS: EntityField[] = [
   { name: 'description', label: 'Descrição', required: true, placeholder: 'Salário, freela...' },
@@ -28,7 +33,7 @@ const FIELDS: EntityField[] = [
     name: 'reference_month',
     label: 'Mês de referência',
     type: 'select',
-    defaultValue: now.month,
+    defaultValue: NOW.month,
     options: monthSelectOptions(),
     required: true,
   },
@@ -36,38 +41,105 @@ const FIELDS: EntityField[] = [
     name: 'reference_year',
     label: 'Ano de referência',
     type: 'select',
-    defaultValue: now.year,
+    defaultValue: NOW.year,
     options: yearSelectOptions(),
     required: true,
   },
+  {
+    name: 'recurrence_months',
+    label: 'Meses a gerar',
+    type: 'number',
+    min: 1,
+    max: 36,
+    defaultValue: 24,
+    hint: 'Só se aplica a ganhos recorrentes',
+  },
+  { name: 'is_recurring', label: 'Recorrente (ex.: salário)', type: 'checkbox', defaultValue: false },
   { name: 'is_received', label: 'Já recebido', type: 'checkbox', defaultValue: false },
 ];
 
+interface SeriesSummary {
+  seriesId: string;
+  description: string;
+  amount: number;
+  months: number;
+  first: MonthRef;
+  last: MonthRef;
+}
+
+/** Agrupa as ocorrências mensais de cada recorrência. */
+function buildSeries(incomes: Income[]): SeriesSummary[] {
+  const map = new Map<string, SeriesSummary>();
+
+  for (const income of incomes) {
+    if (!income.series_id) continue;
+    const month = { year: income.reference_year, month: income.reference_month };
+    const current = map.get(income.series_id);
+
+    if (!current) {
+      map.set(income.series_id, {
+        seriesId: income.series_id,
+        description: income.description,
+        amount: income.amount,
+        months: 1,
+        first: month,
+        last: month,
+      });
+      continue;
+    }
+
+    current.months += 1;
+    if (monthKey(month) < monthKey(current.first)) current.first = month;
+    if (monthKey(month) > monthKey(current.last)) {
+      current.last = month;
+      current.amount = income.amount;
+      current.description = income.description;
+    }
+  }
+
+  return [...map.values()].sort((a, b) => a.description.localeCompare(b.description));
+}
+
 export default async function GanhosPage() {
   const incomes = await listIncomes();
-  const total = incomes.reduce((sum, income) => sum + income.amount, 0);
+  const monthIncomes = incomes.filter(
+    (income) => income.reference_year === NOW.year && income.reference_month === NOW.month,
+  );
+  const series = buildSeries(incomes);
+  const totalMonth = monthIncomes.reduce((sum, income) => sum + income.amount, 0);
 
   return (
     <div className="space-y-4">
-      <AppHeader title="Ganhos" subtitle="Receitas por mês de referência" />
+      <AppHeader
+        title="Ganhos"
+        subtitle="Receitas do mês e recorrências (ex.: salário com ajuste anual)"
+      />
 
       <Card>
-        <SectionTitle title="Novo ganho" description="Entra no cálculo do balanço mensal" />
+        <SectionTitle
+          title="Novo ganho"
+          description="Marque como recorrente para gerar automaticamente os próximos meses"
+        />
         <EntityForm action={createIncomeAction} fields={FIELDS} submitLabel="Lançar ganho" />
       </Card>
 
       <Card>
         <SectionTitle
-          title="Ganhos lançados"
-          description={`${incomes.length} lançamento(s)`}
-          action={<span className="money text-sm font-semibold text-positive">{formatBRL(total)}</span>}
+          title={`Ganhos de ${formatMonthLabel(NOW).toLowerCase()}`}
+          description={`${monthIncomes.length} lançamento(s)`}
+          action={
+            <span className="money text-sm font-semibold text-positive">{formatBRL(totalMonth)}</span>
+          }
         />
 
-        {incomes.length === 0 ? (
-          <EmptyState title="Nenhum ganho lançado" description="Lance o salário do mês acima." />
+        {monthIncomes.length === 0 ? (
+          <EmptyState
+            title="Nenhum ganho neste mês"
+            description="Lance o salário ou um ganho esporádico acima."
+          />
         ) : (
           <ul className="space-y-2">
-            {incomes.map((income) => (
+            {monthIncomes.map((income) => (
               <li
                 key={income.id}
                 className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line p-3"
@@ -75,10 +147,15 @@ export default async function GanhosPage() {
                 <div>
                   <p className="flex items-center gap-2 text-sm font-semibold text-ink">
                     {income.description}
+                    {income.is_recurring ? <Badge tone="brand">recorrente</Badge> : null}
                     {income.is_received ? <Badge tone="positive">recebido</Badge> : null}
                   </p>
                   <p className="text-[11px] text-ink-muted">
-                    {formatMonthLabel({ year: income.reference_year, month: income.reference_month })}
+                    {income.kind === 'salary'
+                      ? 'Salário'
+                      : income.kind === 'extra'
+                        ? 'Extra'
+                        : 'Outros'}
                   </p>
                 </div>
 
@@ -86,15 +163,17 @@ export default async function GanhosPage() {
                   <span className="money text-sm font-medium text-positive">
                     {formatBRL(income.amount)}
                   </span>
-
                   <form action={toggleIncomeReceivedAction}>
                     <input type="hidden" name="id" value={income.id} />
-                    <input type="hidden" name="received" value={income.is_received ? 'false' : 'true'} />
+                    <input
+                      type="hidden"
+                      name="received"
+                      value={income.is_received ? 'false' : 'true'}
+                    />
                     <GhostSubmitButton>
                       {income.is_received ? 'desmarcar' : 'receber'}
                     </GhostSubmitButton>
                   </form>
-
                   <form action={deleteIncomeAction}>
                     <input type="hidden" name="id" value={income.id} />
                     <GhostSubmitButton className="text-negative">excluir</GhostSubmitButton>
@@ -105,6 +184,78 @@ export default async function GanhosPage() {
           </ul>
         )}
       </Card>
+
+      <Card>
+        <SectionTitle
+          title="Recorrências"
+          description="Ajuste o valor a partir de um mês sem alterar o histórico anterior"
+        />
+
+        {series.length === 0 ? (
+          <EmptyState
+            title="Nenhum ganho recorrente"
+            description="Cadastre o salário como recorrente para não precisar lançar todo mês."
+          />
+        ) : (
+          <ul className="space-y-2">
+            {series.map((item) => (
+              <li key={item.seriesId} className="rounded-xl border border-line p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-semibold text-ink">{item.description}</p>
+                    <p className="text-[11px] text-ink-muted">
+                      {formatMonthLabel(item.first)} → {formatMonthLabel(item.last)} · {item.months}{' '}
+                      meses
+                    </p>
+                  </div>
+                  <span className="money text-sm font-semibold text-positive">
+                    {formatBRL(item.amount)}
+                  </span>
+                </div>
+
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-[11px] font-semibold text-brand-700">
+                    Ajustar valor a partir de um mês
+                  </summary>
+                  <div className="mt-3">
+                    <EntityForm
+                      action={adjustRecurringIncomeAction}
+                      fields={[
+                        { name: 'series_id', type: 'hidden', defaultValue: item.seriesId },
+                        {
+                          name: 'amount',
+                          label: 'Novo valor',
+                          type: 'money',
+                          required: true,
+                          defaultValue: item.amount,
+                        },
+                        {
+                          name: 'reference_month',
+                          label: 'A partir do mês',
+                          type: 'select',
+                          defaultValue: NOW.month,
+                          options: monthSelectOptions(),
+                          required: true,
+                        },
+                        {
+                          name: 'reference_year',
+                          label: 'Ano',
+                          type: 'select',
+                          defaultValue: NOW.year,
+                          options: yearSelectOptions(),
+                          required: true,
+                        },
+                      ]}
+                      submitLabel="Aplicar deste mês em diante"
+                    />
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
     </div>
   );
 }
+

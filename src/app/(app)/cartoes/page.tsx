@@ -4,8 +4,10 @@ import { Badge, Card, EmptyState, SectionTitle } from '@/components/ui/kit';
 import { GhostSubmitButton } from '@/components/ui/submit-button';
 import { createCardAction, deleteCardAction, updateCardAction } from '@/lib/actions/cards';
 import { listCards } from '@/lib/data/cards';
+import { listInstallments } from '@/lib/data/transactions';
+import { currentMonth, summarizeCardLimit } from '@/lib/finance';
 import { formatBRL } from '@/lib/format';
-import type { Card as CardModel } from '@/lib/types';
+import type { Card as CardModel, Installment } from '@/lib/types';
 
 function fields(card?: CardModel): EntityField[] {
   return [
@@ -36,13 +38,28 @@ function fields(card?: CardModel): EntityField[] {
       required: true,
       defaultValue: card?.due_day ?? 15,
     },
-    { name: 'color', label: 'Cor (hex)', defaultValue: card?.color ?? '#0e6855' },
+    {
+      name: 'color',
+      label: 'Cor do cartão',
+      type: 'color',
+      defaultValue: card?.color ?? '#0e6855',
+      full: true,
+    },
     { name: 'is_active', label: 'Cartão ativo', type: 'checkbox', defaultValue: card?.is_active ?? true },
   ];
 }
 
 export default async function CartoesPage() {
-  const cards = await listCards();
+  const [cards, installments] = await Promise.all([listCards(), listInstallments()]);
+  const reference = currentMonth();
+
+  const byCard = new Map<string, Installment[]>();
+  for (const installment of installments) {
+    if (!installment.card_id) continue;
+    const list = byCard.get(installment.card_id) ?? [];
+    list.push(installment);
+    byCard.set(installment.card_id, list);
+  }
 
   return (
     <div className="space-y-4">
@@ -86,6 +103,66 @@ export default async function CartoesPage() {
                     </GhostSubmitButton>
                   </form>
                 </div>
+
+                {(() => {
+                  const summary = summarizeCardLimit({
+                    limit: card.credit_limit,
+                    installments: byCard.get(card.id) ?? [],
+                    reference,
+                  });
+
+                  return (
+                    <div className="mt-3 space-y-2 rounded-xl border border-line bg-surface-muted p-2.5">
+                      <div className="flex items-center justify-between text-[11px] text-ink-muted">
+                        <span>Limite restante</span>
+                        <span
+                          className={`money font-semibold ${summary.available < 0 ? 'text-negative' : 'text-positive'}`}
+                        >
+                          {formatBRL(summary.available)}
+                        </span>
+                      </div>
+
+                      <div className="h-1.5 overflow-hidden rounded-full bg-line">
+                        <div
+                          className={`h-full rounded-full ${summary.usedPercent > 85 ? 'bg-negative' : 'bg-brand-600'}`}
+                          style={{ width: `${summary.usedPercent}%` }}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wide text-ink-muted">
+                            Fatura atual
+                          </p>
+                          <p className="money text-xs font-semibold text-ink">
+                            {formatBRL(summary.currentInvoice)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wide text-ink-muted">
+                            Parcelas futuras
+                          </p>
+                          <p className="money text-xs font-semibold text-ink">
+                            {formatBRL(summary.futureInstallments)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wide text-ink-muted">
+                            Atrasadas
+                          </p>
+                          <p className="money text-xs font-semibold text-ink">
+                            {formatBRL(summary.overdue)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <p className="text-[10px] text-ink-muted">
+                        {summary.usedPercent}% do limite comprometido ({formatBRL(summary.committed)}{' '}
+                        de {formatBRL(card.credit_limit)})
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 <details className="mt-2">
                   <summary className="cursor-pointer text-[11px] font-semibold text-brand-700">

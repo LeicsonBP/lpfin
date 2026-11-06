@@ -6,7 +6,7 @@ import {
   deleteIncomeAction,
   toggleIncomeReceivedAction,
 } from '@/lib/actions/incomes';
-import { deletePayrollDeductionAction, togglePayrollPaidAction } from '@/lib/actions/payroll';
+import { deletePayrollDeductionAction } from '@/lib/actions/payroll';
 import { formatBRL, formatInstallmentLabel } from '@/lib/format';
 import { isOverdue } from '@/lib/finance';
 import type {
@@ -101,16 +101,13 @@ export function PayrollSection({ payroll }: { payroll: PayrollDeduction[] }) {
                 <p className={`truncate text-sm ${item.is_paid ? 'text-ink-muted line-through' : 'text-ink'}`}>
                   {item.name}
                 </p>
-                {isOverdue(item) ? <Badge tone="negative">atrasado</Badge> : null}
+                <div className="flex items-center gap-1.5">
+                  <Badge tone="neutral">automático</Badge>
+                  {isOverdue(item) ? <Badge tone="negative">atrasado</Badge> : null}
+                </div>
               </div>
 
               <span className="money text-sm font-medium text-ink">{formatBRL(item.amount)}</span>
-
-              <form action={togglePayrollPaidAction}>
-                <input type="hidden" name="id" value={item.id} />
-                <input type="hidden" name="paid" value={item.is_paid ? 'false' : 'true'} />
-                <GhostSubmitButton>{item.is_paid ? 'pago' : 'pagar'}</GhostSubmitButton>
-              </form>
 
               <form action={deletePayrollDeductionAction}>
                 <input type="hidden" name="id" value={item.id} />
@@ -146,7 +143,10 @@ export function IncomeSection({ incomes }: { incomes: Income[] }) {
           {incomes.map((income) => (
             <li key={income.id} className="flex items-center gap-2 border-t border-line py-2 first:border-t-0">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm text-ink">{income.description}</p>
+                <p className="flex items-center gap-1.5 truncate text-sm text-ink">
+                  {income.description}
+                  {income.is_recurring ? <Badge tone="brand">recorrente</Badge> : null}
+                </p>
                 <p className="text-[11px] text-ink-muted">
                   {income.kind === 'salary' ? 'Salário' : income.kind === 'extra' ? 'Extra' : 'Outros'}
                 </p>

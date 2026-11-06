@@ -8,20 +8,7 @@ import { addMonths, currentMonth, isSameMonth } from '@/lib/finance';
 import { formatMonthLabel } from '@/lib/format';
 import type { MonthRef } from '@/lib/types';
 
-const MONTHS_SHORT = [
-  'Jan',
-  'Fev',
-  'Mar',
-  'Abr',
-  'Mai',
-  'Jun',
-  'Jul',
-  'Ago',
-  'Set',
-  'Out',
-  'Nov',
-  'Dez',
-];
+const MONTHS_SHORT = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
 /**
  * Seletor de competência: setas para navegar mês a mês e um popover para
@@ -36,12 +23,11 @@ export function MonthPicker({
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [year, setYear] = useState(reference.year);
+  /** ano exibido no popover (null = segue o mês de referência) */
+  const [yearOverride, setYearOverride] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setYear(reference.year);
-  }, [reference.year]);
+  const year = yearOverride ?? reference.year;
 
   useEffect(() => {
     if (!open) return;
@@ -65,6 +51,7 @@ export function MonthPicker({
 
   function goTo(target: MonthRef) {
     setOpen(false);
+    setYearOverride(null);
     router.push(`${basePath}?ano=${target.year}&mes=${target.month}`);
   }
 
@@ -111,7 +98,7 @@ export function MonthPicker({
             <button
               type="button"
               aria-label="Ano anterior"
-              onClick={() => setYear((value) => value - 1)}
+              onClick={() => setYearOverride(year - 1)}
               className="rounded-lg p-1.5 text-ink-muted transition hover:bg-surface-muted hover:text-ink"
             >
               <ChevronLeft className="size-4" />
@@ -120,7 +107,7 @@ export function MonthPicker({
             <button
               type="button"
               aria-label="Próximo ano"
-              onClick={() => setYear((value) => value + 1)}
+              onClick={() => setYearOverride(year + 1)}
               className="rounded-lg p-1.5 text-ink-muted transition hover:bg-surface-muted hover:text-ink"
             >
               <ChevronRight className="size-4" />
@@ -151,9 +138,8 @@ export function MonthPicker({
           <button
             type="button"
             onClick={() => {
-              const now = currentMonth();
-              setYear(now.year);
-              goTo(now);
+              setYearOverride(null);
+              goTo(currentMonth());
             }}
             className="mt-3 w-full rounded-lg border border-line px-2 py-1.5 text-xs font-semibold text-brand-700 transition hover:bg-primary-soft"
           >
