@@ -48,15 +48,9 @@ ${paths.map((path) => `  '${path.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}',`
 
 writeFileSync(join(brandDir, 'lp-logo-paths.ts'), tsContent, 'utf8');
 
-// Favicon sem fundo e adaptável ao tema do navegador:
-// base branca (fallback para navegadores que ignoram a media query) e
-// preto quando o sistema está no modo claro.
+// Favicon sem fundo, sempre preto.
 const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" width="64" height="64">
-  <style>
-    path { fill: #ffffff; }
-    @media (prefers-color-scheme: light) { path { fill: #0f1f19; } }
-  </style>
-  <g transform="${transform}">
+  <g transform="${transform}" fill="#000000">
 ${paths.map((path) => `    <path d="${path}" />`).join('\n')}
   </g>
 </svg>
