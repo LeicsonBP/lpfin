@@ -249,5 +249,12 @@ tabela `card_payments` (+RLS +trigger), colunas `series_id`/`is_recurring` em `i
   **0.42**, sombra `-18px/0.26` e auroras do shell 30/26/42% → **26/22/34%** com raios maiores.
 - `StatTile` (usado no Dashboard: média, projeção, fim dos parcelamentos e contas projetadas) passou a
   usar `glass-card`; dentro do card do balanço recebe `flat` para não empilhar desfoque.
+- Popovers de cor (cartão e destaque) ficavam atrás dos cards seguintes porque `backdrop-filter` cria
+  *stacking context*; corrigido com `.glass-card:has(.glass-pop) { position: relative; z-index: 30 }`.
+- Ambiente do vidro reescrito: `--ambient-glows` (3 brilhos derivados do accent) + `--ambient-top`
+  (accent claro) → `--ambient-dark` (`#0b1013` no claro, `#05080a` no escuro). A classe `app-ambient`
+  (só no layout autenticado) aplica o degradê accent → quase preto; o login mantém só os brilhos para
+  não prejudicar a leitura do título. O card "Balanço do mês" usa `.tint-to-dark`/`.glass-tint` e
+  também termina em quase preto (`--ambient-dark` a 12% no sólido e 20% no vidro).
 
 

@@ -20,7 +20,7 @@ export function BalanceCard({ summary }: { summary: MonthlySummary }) {
       className={
         tone === 'neutral'
           ? 'bg-gradient-to-br from-surface to-surface-muted/70'
-          : 'glass-tint bg-gradient-to-br from-surface to-brand-50/60'
+          : 'glass-tint tint-to-dark bg-gradient-to-br from-surface to-brand-50/60'
       }
     >
       <div className="flex flex-wrap items-end justify-between gap-4">

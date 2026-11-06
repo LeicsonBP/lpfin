@@ -147,8 +147,9 @@ src/
   `user_settings.surface_style`; o `RootLayout` aplica `<html data-surface="glass">` (cookie tem
   precedência, o valor da conta serve de padrão em outros dispositivos). O CSS (`globals.css`, fora
   dos `@layer` para vencer os utilitários) troca `bg-surface` por fundo translúcido +
-  `backdrop-filter: blur() saturate()`, brilho especular suave no topo e sombra leve. O shell ganha
-  um fundo de "auroras" (radial gradients) para o desfoque ter o que mostrar, e
+  `backdrop-filter: blur() saturate()`, brilho especular suave no topo e sombra leve. O shell ganha um
+  fundo de "auroras" (`--ambient-glows`, derivadas do accent) que no app autenticado desce do accent
+  para um tom quase preto (`--ambient-top` → `--ambient-dark`), e
   `@media (prefers-reduced-transparency: reduce)` devolve os cards sólidos. Ficam em vidro apenas os
   containers (cards de seção, sidebar, bottom-nav e popovers) — linhas de dados e campos de
   formulário continuam opacos para preservar o contraste.
