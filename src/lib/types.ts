@@ -118,5 +118,5 @@ export interface PayrollDeduction {
 
 /** Resultado padrão das Server Actions (usado com useActionState). */
 export type ActionResult<T = undefined> =
-  | { ok: true; data: T }
+  | { ok: true; data: T; message?: string }
   | { ok: false; error: string; fieldErrors?: Record<string, string[]> };

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { parseMoneyInput } from '@/lib/money';
+
 const monthSchema = z.coerce
   .number()
   .int('Mês inválido')
@@ -12,10 +14,15 @@ const yearSchema = z.coerce
   .min(2000, 'Ano inválido')
   .max(2100, 'Ano inválido');
 
-const moneySchema = z.coerce
-  .number()
-  .min(0, 'O valor não pode ser negativo')
-  .max(99_999_999.99, 'Valor muito alto');
+/** Aceita "1.234,56", "1234,56" ou número. */
+const moneySchema = z.preprocess(
+  (value) => (typeof value === 'string' ? parseMoneyInput(value) : value),
+  z
+    .number('Informe um valor válido')
+    .min(0, 'O valor não pode ser negativo')
+    .max(99_999_999.99, 'Valor muito alto'),
+);
+
 
 const daySchema = z.coerce
   .number()

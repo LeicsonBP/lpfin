@@ -77,3 +77,31 @@ export function formatPercent(value: number): string {
     maximumFractionDigits: 1,
   }).format(Number.isFinite(value) ? value : 0);
 }
+
+/** Opções de `select` para meses (value = '1'...'12'). */
+export function monthSelectOptions(): { value: string; label: string }[] {
+  return MONTH_NAMES.map((name, index) => ({ value: String(index + 1), label: name }));
+}
+
+/** Opções de `select` para anos (ano atual -1 até +2). */
+export function yearSelectOptions(span = 2): { value: string; label: string }[] {
+  const current = new Date().getFullYear();
+  return Array.from({ length: span + 2 }, (_, index) => {
+    const year = current - 1 + index;
+    return { value: String(year), label: String(year) };
+  });
+}
+
+/** Categorias sugeridas para compras. */
+export const TRANSACTION_CATEGORIES = [
+  'outros',
+  'compras',
+  'assinaturas',
+  'moradia',
+  'transporte',
+  'saúde',
+  'educação',
+  'lazer',
+  'presentes',
+] as const;
+
