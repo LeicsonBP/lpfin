@@ -51,6 +51,8 @@ As migrations ficam em [`supabase/migrations`](supabase/migrations):
 4. `20250101000300_categories_cards_recurrence.sql` — categorias à vista/à prazo, `card_payments`
    (fatura paga por mês) e ganhos recorrentes.
 5. `20250101000400_user_settings.sql` — `user_settings` (cor de destaque por usuário).
+6. `20250101000500_fixed_bills_installments.sql` — contas fixas passam a aceitar parcelas
+   (`kind`, `installments_count` no molde e `installment_number/total` no lançamento mensal).
 
 **Opção A — SQL Editor (manual):** abra o SQL Editor do Supabase e cole o conteúdo dos três
 arquivos, na ordem.

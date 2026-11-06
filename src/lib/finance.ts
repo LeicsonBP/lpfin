@@ -508,19 +508,19 @@ export function forecastNextMonths(input: ForecastInput): ForecastMonth[] {
   const categoryWindow = input.categoryWindow ?? 3;
   const projectionCategory = input.projectionCategory ?? 'avista';
 
-  const fixedDetails: ForecastDetail[] = input.fixedBills
-    .filter((bill) => bill.is_active)
-    .map((bill) => ({
-      name: bill.name,
-      amount: averageFixedBill(
+  const fixedBills = input.fixedBills.filter((bill) => bill.is_active);
+  const fixedAverage = new Map(
+    fixedBills.map((bill) => [
+      bill.id,
+      averageFixedBill(
         input.fixedHistory,
         bill.id,
         bill.base_value,
         input.anchor,
         historyWindow,
       ),
-    }));
-  const fixedTotal = sumMoney(fixedDetails.map((detail) => detail.amount));
+    ]),
+  );
 
   const othersAverage = averageCategorySpend({
     transactions: input.transactions,
@@ -538,6 +538,22 @@ export function forecastNextMonths(input: ForecastInput): ForecastMonth[] {
   return Array.from({ length: monthsAhead }, (_, index) => {
     const month = addMonths(input.anchor, index + 1);
     const scheduled = installmentsInMonth(input.installments, month);
+
+    // Contas parceladas (financiamentos) usam o valor real da parcela daquele
+    // mês e deixam de existir quando a série termina; as fixas usam a média.
+    const fixedDetails: ForecastDetail[] = fixedBills.map((bill) => {
+      if (bill.kind === 'installment') {
+        const entry = input.fixedHistory.find(
+          (item) =>
+            item.fixed_bill_id === bill.id &&
+            item.reference_year === month.year &&
+            item.reference_month === month.month,
+        );
+        return { name: bill.name, amount: entry?.amount ?? 0 };
+      }
+      return { name: bill.name, amount: fixedAverage.get(bill.id) ?? bill.base_value };
+    });
+    const fixedTotal = sumMoney(fixedDetails.map((detail) => detail.amount));
 
     const scheduledCents = scheduled.reduce(
       (total, installment) => total + toCents(installment.amount),

@@ -8,18 +8,90 @@ import {
   updateFixedBillAction,
 } from '@/lib/actions/fixedBills';
 import { listFixedBills } from '@/lib/data/fixedBills';
-import { formatBRL } from '@/lib/format';
+import { currentMonth } from '@/lib/finance';
+import { formatBRL, monthSelectOptions, yearSelectOptions } from '@/lib/format';
 import type { FixedBill } from '@/lib/types';
 
-function fields(bill?: FixedBill): EntityField[] {
+const NOW = currentMonth();
+
+/** Cadastro: fixa (todo mês) ou parcelada (financiamento/empréstimo). */
+function createFields(): EntityField[] {
   return [
-    { name: 'name', label: 'Nome da conta', required: true, defaultValue: bill?.name },
+    { name: 'name', label: 'Nome da conta', required: true, placeholder: 'RGE, financiamento...' },
+    {
+      name: 'kind',
+      label: 'Tipo',
+      type: 'select',
+      defaultValue: 'fixed',
+      options: [
+        { value: 'fixed', label: 'Fixa (todo mês)' },
+        { value: 'installment', label: 'Parcelada (financiamento)' },
+      ],
+    },
+    {
+      name: 'base_value',
+      label: 'Valor',
+      type: 'money',
+      required: true,
+      hint: 'Valor estimado (fixa) ou valor da parcela (parcelada)',
+    },
+    {
+      name: 'installments_count',
+      label: 'Nº de parcelas',
+      type: 'number',
+      min: 1,
+      max: 480,
+      defaultValue: 1,
+      hint: 'Só para contas parceladas',
+    },
+    {
+      name: 'current_installment',
+      label: 'Parcela atual',
+      type: 'number',
+      min: 1,
+      max: 480,
+      defaultValue: 1,
+      hint: 'Ex.: 35 de 36 — as anteriores entram como pagas',
+    },
+    {
+      name: 'reference_month',
+      label: 'Mês da parcela',
+      type: 'select',
+      defaultValue: NOW.month,
+      options: monthSelectOptions(),
+      required: true,
+    },
+    {
+      name: 'reference_year',
+      label: 'Ano',
+      type: 'select',
+      defaultValue: NOW.year,
+      options: yearSelectOptions(),
+      required: true,
+    },
+    {
+      name: 'due_day',
+      label: 'Dia de vencimento',
+      type: 'number',
+      min: 1,
+      max: 31,
+      required: true,
+      defaultValue: 10,
+    },
+    { name: 'is_active', label: 'Conta ativa', type: 'checkbox', defaultValue: true },
+  ];
+}
+
+/** Edição: só os dados do "molde" (as parcelas são ajustadas no mês). */
+function updateFields(bill: FixedBill): EntityField[] {
+  return [
+    { name: 'name', label: 'Nome da conta', required: true, defaultValue: bill.name },
     {
       name: 'base_value',
       label: 'Valor estimado',
       type: 'money',
       required: true,
-      defaultValue: bill?.base_value ?? 0,
+      defaultValue: bill.base_value,
       hint: 'Referência para a projeção — o valor real é informado mês a mês',
     },
     {
@@ -29,9 +101,9 @@ function fields(bill?: FixedBill): EntityField[] {
       min: 1,
       max: 31,
       required: true,
-      defaultValue: bill?.due_day ?? 10,
+      defaultValue: bill.due_day ?? 10,
     },
-    { name: 'is_active', label: 'Conta ativa', type: 'checkbox', defaultValue: bill?.is_active ?? true },
+    { name: 'is_active', label: 'Conta ativa', type: 'checkbox', defaultValue: bill.is_active },
   ];
 }
 
@@ -46,8 +118,11 @@ export default async function ContasFixasPage() {
       />
 
       <Card>
-        <SectionTitle title="Nova conta fixa" description="Aluguel, energia, internet, condomínio..." />
-        <EntityForm action={createFixedBillAction} fields={fields()} submitLabel="Criar conta fixa" />
+        <SectionTitle
+          title="Nova conta"
+          description="Conta fixa (todo mês) ou parcelada (financiamento/empréstimo)"
+        />
+        <EntityForm action={createFixedBillAction} fields={createFields()} submitLabel="Criar conta" />
       </Card>
 
       <Card>
@@ -64,6 +139,11 @@ export default async function ContasFixasPage() {
                     <p className="flex items-center gap-2 text-sm font-semibold text-ink">
                       {bill.name}
                       {!bill.is_active ? <Badge>inativa</Badge> : null}
+                      {bill.kind === 'installment' ? (
+                        <Badge tone="brand">{bill.installments_count ?? '?'}x parcelada</Badge>
+                      ) : (
+                        <Badge tone="neutral">fixa</Badge>
+                      )}
                     </p>
                     <p className="text-[11px] text-ink-muted">
                       valor estimado {formatBRL(bill.base_value)}
@@ -86,7 +166,7 @@ export default async function ContasFixasPage() {
                   <div className="mt-3">
                     <EntityForm
                       action={updateFixedBillAction}
-                      fields={fields(bill)}
+                      fields={updateFields(bill)}
                       id={bill.id}
                       submitLabel="Salvar alterações"
                     />

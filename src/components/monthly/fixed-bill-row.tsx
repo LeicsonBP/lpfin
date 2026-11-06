@@ -9,7 +9,7 @@ import {
   toggleFixedBillEntryPaidAction,
   upsertFixedBillEntryAction,
 } from '@/lib/actions/fixedBills';
-import { formatBRLCompact } from '@/lib/format';
+import { formatBRLCompact, formatInstallmentLabel } from '@/lib/format';
 import { isOverdue } from '@/lib/finance';
 import type { FixedBill, FixedBillEntry, MonthRef } from '@/lib/types';
 
@@ -60,7 +60,11 @@ export function FixedBillRow({
 
   return (
     <li className="flex items-center gap-2 border-t border-line py-2 first:border-t-0">
-      <span className="w-12 shrink-0 text-[11px] font-semibold text-ink-muted">FIX</span>
+      <span className="w-12 shrink-0 text-[11px] font-semibold text-ink-muted">
+        {entry?.installment_number
+          ? formatInstallmentLabel(entry.installment_number, entry.installment_total)
+          : 'FIX'}
+      </span>
 
       <div className="min-w-0 flex-1">
         <p className={clsx('truncate text-sm', entry?.is_paid ? 'text-ink-muted line-through' : 'text-ink')}>

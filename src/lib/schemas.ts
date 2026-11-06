@@ -57,9 +57,27 @@ export const fixedBillSchema = z.object({
   name: nameSchema,
   due_day: daySchema,
   base_value: moneySchema,
-  category: z.string().trim().max(40, 'Use no máximo 40 caracteres').optional(),
   is_active: z.boolean().default(true),
 });
+
+/** Cadastro de conta: fixa (todo mês) ou parcelada (financiamento/empréstimo). */
+export const fixedBillCreateSchema = fixedBillSchema
+  .extend({
+    kind: z.enum(['fixed', 'installment']).default('fixed'),
+    installments_count: z.coerce.number().int().min(1).max(480).default(1),
+    /** parcela em que a conta está hoje (ex.: 35 de 36) */
+    current_installment: z.coerce.number().int().min(1).max(480).default(1),
+    reference_year: yearSchema,
+    reference_month: monthSchema,
+  })
+  .refine((data) => data.kind === 'fixed' || data.installments_count >= 1, {
+    message: 'Informe o número de parcelas',
+    path: ['installments_count'],
+  })
+  .refine((data) => data.current_installment <= data.installments_count, {
+    message: 'A parcela atual não pode ser maior que o total',
+    path: ['current_installment'],
+  });
 
 export const fixedBillEntrySchema = z.object({
   fixed_bill_id: z.string().uuid('Conta fixa inválida'),
@@ -156,6 +174,7 @@ export const loginSchema = z.object({
 
 export type CardInput = z.infer<typeof cardSchema>;
 export type FixedBillInput = z.infer<typeof fixedBillSchema>;
+export type FixedBillCreateInput = z.infer<typeof fixedBillCreateSchema>;
 export type FixedBillEntryInput = z.infer<typeof fixedBillEntrySchema>;
 export type IncomeInput = z.infer<typeof incomeSchema>;
 export type PayrollDeductionInput = z.infer<typeof payrollDeductionSchema>;

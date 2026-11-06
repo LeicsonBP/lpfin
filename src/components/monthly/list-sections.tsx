@@ -28,7 +28,14 @@ export function FixedBillsSection({
   monthLabel: string;
 }) {
   const entryByBill = new Map(entries.map((entry) => [entry.fixed_bill_id, entry] as const));
-  const activeBills = bills.filter((bill) => bill.is_active || entryByBill.has(bill.id));
+  const activeBills = bills.filter((bill) => {
+    const entry = entryByBill.get(bill.id);
+
+    // contas parceladas só aparecem nos meses em que a parcela existe
+    if (bill.kind === 'installment') return Boolean(entry);
+
+    return bill.is_active || Boolean(entry);
+  });
   const total = activeBills.reduce((sum, bill) => {
     const entry = entryByBill.get(bill.id);
     return sum + (entry ? entry.amount : bill.base_value);

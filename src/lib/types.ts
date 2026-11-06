@@ -29,6 +29,10 @@ export interface FixedBill {
   due_day: number | null;
   base_value: number;
   category: string | null;
+  /** fixa (todo mês) ou parcelada (financiamento/empréstimo) */
+  kind: 'fixed' | 'installment';
+  /** total de parcelas, quando kind = 'installment' */
+  installments_count: number | null;
   is_active: boolean;
   created_at: ISODateTime;
   updated_at: ISODateTime;
@@ -44,6 +48,9 @@ export interface FixedBillEntry {
   is_paid: boolean;
   paid_at: ISODateTime | null;
   notes: string | null;
+  /** número/total da parcela (null em contas fixas comuns) */
+  installment_number: number | null;
+  installment_total: number | null;
   created_at: ISODateTime;
   updated_at: ISODateTime;
 }
