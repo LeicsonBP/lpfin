@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { requireUser } from '@/lib/data/session';
-import { addMonths } from '@/lib/finance';
+import { addMonths, currentMonth } from '@/lib/finance';
 import { parseMoneyInput } from '@/lib/money';
 import { fixedBillCreateSchema, fixedBillEntrySchema, fixedBillSchema } from '@/lib/schemas';
 import type { ActionResult } from '@/lib/types';
@@ -74,11 +74,15 @@ export async function createFixedBillAction(
   if (isInstallment) {
     const total = data.installments_count;
     const current = Math.min(data.current_installment, total);
+    const now = currentMonth();
     const start = addMonths(
-      { year: data.reference_year, month: data.reference_month },
+      {
+        year: data.reference_year ?? now.year,
+        month: data.reference_month ?? now.month,
+      },
       -(current - 1),
     );
-    const now = new Date().toISOString();
+    const paidAt = new Date().toISOString();
 
     const entries = Array.from({ length: total }, (_, index) => {
       const month = addMonths(start, index);
@@ -94,7 +98,7 @@ export async function createFixedBillAction(
         installment_number: number,
         installment_total: total,
         is_paid: alreadyPaid,
-        paid_at: alreadyPaid ? now : null,
+        paid_at: alreadyPaid ? paidAt : null,
       };
     });
 

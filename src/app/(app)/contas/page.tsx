@@ -25,7 +25,7 @@ function createFields(): EntityField[] {
       type: 'select',
       defaultValue: 'fixed',
       options: [
-        { value: 'fixed', label: 'Fixa (todo mês)' },
+        { value: 'fixed', label: 'Fixa' },
         { value: 'installment', label: 'Parcelada' },
       ],
       hint: 'Parcelada vale para crediário, financiamento, empréstimo...',
@@ -45,6 +45,7 @@ function createFields(): EntityField[] {
       max: 480,
       defaultValue: 1,
       hint: 'Só para contas parceladas',
+      showWhen: { field: 'kind', equals: ['installment'] },
     },
     {
       name: 'current_installment',
@@ -54,6 +55,7 @@ function createFields(): EntityField[] {
       max: 480,
       defaultValue: 1,
       hint: 'Ex.: 35 de 36 — as anteriores entram como pagas',
+      showWhen: { field: 'kind', equals: ['installment'] },
     },
     {
       name: 'reference_month',
@@ -62,14 +64,16 @@ function createFields(): EntityField[] {
       defaultValue: NOW.month,
       options: monthSelectOptions(),
       required: true,
+      showWhen: { field: 'kind', equals: ['installment'] },
     },
     {
       name: 'reference_year',
-      label: 'Ano',
+      label: 'Ano da parcela',
       type: 'select',
       defaultValue: NOW.year,
       options: yearSelectOptions(),
       required: true,
+      showWhen: { field: 'kind', equals: ['installment'] },
     },
     {
       name: 'due_day',

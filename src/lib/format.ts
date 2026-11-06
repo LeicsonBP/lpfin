@@ -60,12 +60,13 @@ export function formatDayMonth(value: ISODate | null | undefined): string {
   }).format(date);
 }
 
-/** 1/3, 4/18, FIX... */
+/** 1/3, 4/18, AV (à vista) ou FIX... */
 export function formatInstallmentLabel(
   number: number | null | undefined,
   total: number | null | undefined,
 ): string {
   if (!number) return 'FIX';
+  if (total === 1) return 'AV';
   if (!total) return String(number);
   return `${number}/${total}`;
 }

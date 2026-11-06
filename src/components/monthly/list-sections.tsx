@@ -15,6 +15,15 @@ import type {
 
 import { FixedBillRow } from './fixed-bill-row';
 
+/** Link curto usado no cabeçalho dos cards da visão mensal. */
+function SectionLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="text-[11px] font-semibold text-brand-700 hover:underline">
+      {label}
+    </Link>
+  );
+}
+
 export function FixedBillsSection({
   bills,
   entries,
@@ -45,7 +54,12 @@ export function FixedBillsSection({
       <SectionTitle
         title="Contas"
         description={`Valores reais de ${monthLabel}`}
-        action={<span className="money text-sm font-semibold text-ink">{formatBRL(total)}</span>}
+        action={
+          <div className="flex items-center gap-3">
+            <span className="money text-sm font-semibold text-ink">{formatBRL(total)}</span>
+            <SectionLink href="/contas" label="+ Nova" />
+          </div>
+        }
       />
 
       {activeBills.length === 0 ? (
@@ -84,13 +98,19 @@ export function PayrollSection({ payroll }: { payroll: PayrollDeduction[] }) {
     <Card>
       <SectionTitle
         title="Débitos em folha"
-        action={<span className="money text-sm font-semibold text-ink">{formatBRL(total)}</span>}
+        action={
+          <div className="flex items-center gap-3">
+            <span className="money text-sm font-semibold text-ink">{formatBRL(total)}</span>
+            <SectionLink href="/debitos" label="+ Novo" />
+          </div>
+        }
       />
 
       {payroll.length === 0 ? (
         <EmptyState
           title="Nenhum débito em folha"
           description="Empréstimos e consignados descontados direto no salário."
+          action={<SectionLink href="/debitos" label="Cadastrar débito" />}
         />
       ) : (
         <ul>
@@ -130,13 +150,19 @@ export function IncomeSection({ incomes }: { incomes: Income[] }) {
     <Card>
       <SectionTitle
         title="Ganhos"
-        action={<span className="money text-sm font-semibold text-positive">{formatBRL(total)}</span>}
+        action={
+          <div className="flex items-center gap-3">
+            <span className="money text-sm font-semibold text-positive">{formatBRL(total)}</span>
+            <SectionLink href="/ganhos" label="+ Novo" />
+          </div>
+        }
       />
 
       {incomes.length === 0 ? (
         <EmptyState
           title="Nenhum ganho lançado"
           description="Cadastre salário, freelas e outras receitas do mês."
+          action={<SectionLink href="/ganhos" label="Lançar ganho" />}
         />
       ) : (
         <ul>

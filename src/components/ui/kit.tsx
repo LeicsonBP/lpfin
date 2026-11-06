@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import { ChevronDown } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
 
 export const inputClass =
@@ -144,8 +145,21 @@ export function Input({ className, ...props }: ComponentProps<'input'>) {
   return <input className={clsx(inputClass, className)} {...props} />;
 }
 
-export function Select({ className, ...props }: ComponentProps<'select'>) {
-  return <select className={clsx(inputClass, className)} {...props} />;
+export function Select({ className, children, ...props }: ComponentProps<'select'>) {
+  return (
+    <div className="relative w-full">
+      <select
+        className={clsx(inputClass, 'appearance-none pr-9', className)}
+        {...props}
+      >
+        {children}
+      </select>
+      <ChevronDown
+        aria-hidden
+        className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
+      />
+    </div>
+  );
 }
 
 /** Campo de valor em reais (aceita 1.234,56). */

@@ -2,6 +2,8 @@
 
 import { Moon, Sun } from 'lucide-react';
 
+import { ChevronDown } from 'lucide-react';
+
 import { THEME_COOKIE } from '@/lib/cookies';
 import type { Theme } from '@/lib/theme';
 
@@ -43,7 +45,7 @@ export function ThemeSelect({
         aria-label="Tema da interface"
         defaultValue={initialTheme}
         onChange={(event) => apply(event.target.value)}
-        className="w-full appearance-none rounded-xl border border-line bg-surface py-1.5 pl-7 pr-2 text-xs font-medium text-ink-muted outline-none transition hover:border-brand-400 focus:border-brand-500"
+        className="w-full appearance-none rounded-xl border border-line bg-surface py-1.5 pl-7 pr-7 text-xs font-medium text-ink-muted outline-none transition hover:border-brand-400 focus:border-brand-500"
       >
         {OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
@@ -51,6 +53,10 @@ export function ThemeSelect({
           </option>
         ))}
       </select>
+      <ChevronDown
+        aria-hidden
+        className="pointer-events-none absolute right-2 top-1/2 size-3.5 -translate-y-1/2 text-ink-muted"
+      />
     </div>
   );
 }

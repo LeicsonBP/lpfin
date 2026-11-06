@@ -1,7 +1,7 @@
 'use client';
 
 import { clsx } from 'clsx';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 
 import { SubmitButton } from '@/components/ui/submit-button';
 import { Field, Input, MoneyInput, Select } from '@/components/ui/kit';
@@ -23,6 +23,8 @@ export interface EntityField {
   step?: number | string;
   /** paleta exibida quando type = 'color' */
   palette?: 'card' | 'accent';
+  /** só aparece quando outro campo estiver em um destes valores */
+  showWhen?: { field: string; equals: string[] };
   /** ocupa as duas colunas no grid */
   full?: boolean;
 }
@@ -53,12 +55,34 @@ export function EntityForm({
 }) {
   const [state, formAction] = useActionState(action, undefined);
 
+  // guarda o valor dos campos que controlam a visibilidade de outros (ex.: tipo)
+  const [values, setValues] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+
+    for (const field of fields) {
+      if (typeof field.defaultValue === 'string' || typeof field.defaultValue === 'number') {
+        initial[field.name] = String(field.defaultValue);
+      }
+    }
+
+    return initial;
+  });
+
+  function setValue(name: string, value: string) {
+    setValues((current) => (current[name] === value ? current : { ...current, [name]: value }));
+  }
+
+  const visibleFields = fields.filter((field) => {
+    if (!field.showWhen) return true;
+    return field.showWhen.equals.includes(values[field.showWhen.field] ?? '');
+  });
+
   return (
     <form action={formAction} className={clsx('space-y-4', className)}>
       {id ? <input type="hidden" name="id" value={id} /> : null}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {fields.map((field) => {
+        {visibleFields.map((field) => {
           const error = state && !state.ok ? state.fieldErrors?.[field.name]?.[0] : undefined;
           const inputId = `${field.name}-${id ?? 'new'}`;
 
@@ -107,6 +131,7 @@ export function EntityForm({
                   name={field.name}
                   defaultValue={String(field.defaultValue ?? '')}
                   required={field.required}
+                  onChange={(event) => setValue(field.name, event.target.value)}
                 >
                   {field.placeholder ? (
                     <option value="">{field.placeholder}</option>

@@ -67,8 +67,8 @@ export const fixedBillCreateSchema = fixedBillSchema
     installments_count: z.coerce.number().int().min(1).max(480).default(1),
     /** parcela em que a conta está hoje (ex.: 35 de 36) */
     current_installment: z.coerce.number().int().min(1).max(480).default(1),
-    reference_year: yearSchema,
-    reference_month: monthSchema,
+    reference_year: yearSchema.optional(),
+    reference_month: monthSchema.optional(),
   })
   .refine((data) => data.kind === 'fixed' || data.installments_count >= 1, {
     message: 'Informe o número de parcelas',

@@ -1,5 +1,6 @@
 import { clsx } from 'clsx';
 import { Check } from 'lucide-react';
+import Link from 'next/link';
 import type { CSSProperties } from 'react';
 
 import { Card, EmptyState, SectionTitle } from '@/components/ui/kit';
@@ -61,9 +62,17 @@ export function CardsSection({
         title="Cartões"
         description={`Compras ativas em ${monthLabel}`}
         action={
-          <span className="money text-sm font-semibold text-ink">
-            {formatBRL(totals.reduce((total, item) => total + item.total, 0))}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="money text-sm font-semibold text-ink">
+              {formatBRL(totals.reduce((total, item) => total + item.total, 0))}
+            </span>
+            <Link
+              href="/cartoes"
+              className="text-[11px] font-semibold text-brand-700 hover:underline"
+            >
+              + Novo
+            </Link>
+          </div>
         }
       />
 
@@ -71,6 +80,22 @@ export function CardsSection({
         <EmptyState
           title="Nenhuma compra neste mês"
           description="Cadastre uma compra em Compras para gerar as parcelas automaticamente."
+          action={
+            <div className="flex items-center justify-center gap-3">
+              <Link
+                href="/compras"
+                className="text-xs font-semibold text-brand-700 hover:underline"
+              >
+                Cadastrar compra
+              </Link>
+              <Link
+                href="/cartoes"
+                className="text-xs font-semibold text-brand-700 hover:underline"
+              >
+                Cadastrar cartão
+              </Link>
+            </div>
+          }
         />
       ) : (
         <div className="grid gap-3 md:grid-cols-2">

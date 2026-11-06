@@ -32,7 +32,7 @@ const FIELDS: EntityField[] = [
     type: 'select',
     defaultValue: 'fixed',
     options: [
-      { value: 'fixed', label: 'Fixo (todo mês)' },
+      { value: 'fixed', label: 'Fixo' },
       { value: 'installment', label: 'Parcelado' },
     ],
   },
@@ -44,6 +44,7 @@ const FIELDS: EntityField[] = [
     max: 120,
     defaultValue: 1,
     hint: 'Usado apenas quando o tipo é parcelado',
+    showWhen: { field: 'kind', equals: ['installment'] },
   },
   {
     name: 'current_installment',
@@ -53,6 +54,7 @@ const FIELDS: EntityField[] = [
     max: 120,
     defaultValue: 1,
     hint: 'Ex.: 11 de 12 — as anteriores entram como pagas',
+    showWhen: { field: 'kind', equals: ['installment'] },
   },
   {
     name: 'reference_month',

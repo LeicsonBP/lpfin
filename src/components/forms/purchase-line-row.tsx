@@ -93,23 +93,31 @@ export function PurchaseLineRow({
       </div>
 
       <div className="sm:col-span-4">
-        <Field
-          label="Parcela atual"
-          htmlFor={`current-${line.key}`}
-          hint={`de ${line.installments_count || 1}`}
-        >
-          <input
-            id={`current-${line.key}`}
-            type="number"
-            min={1}
-            max={line.installments_count || 1}
-            value={line.current_installment}
-            onChange={(event) =>
-              onChange(line.key, { current_installment: Number(event.target.value) })
-            }
-            className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-brand-500"
-          />
-        </Field>
+        {line.installments_count > 1 ? (
+          <Field
+            label="Parcela atual"
+            htmlFor={`current-${line.key}`}
+            hint={`de ${line.installments_count}`}
+          >
+            <input
+              id={`current-${line.key}`}
+              type="number"
+              min={1}
+              max={line.installments_count}
+              value={line.current_installment}
+              onChange={(event) =>
+                onChange(line.key, { current_installment: Number(event.target.value) })
+              }
+              className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-brand-500"
+            />
+          </Field>
+        ) : (
+          <div className="flex h-full items-end">
+            <span className="rounded-lg bg-primary-soft px-2 py-1 text-[11px] font-semibold text-brand-700">
+              Compra à vista
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col justify-end gap-0.5 sm:col-span-8">
