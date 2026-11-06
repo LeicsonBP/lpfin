@@ -102,3 +102,36 @@ RLS habilitado em todas as tabelas, com 4 policies por tabela (`select/insert/up
 1. Supabase → **Authentication > Providers > Google** (Client ID/Secret) e redirect `https://hyubceacbustqjhmlovb.supabase.co/auth/v1/callback`.
 2. Supabase → **URL Configuration**: Site URL `http://localhost:3000`; Redirect URLs `http://localhost:3000/auth/callback` + domínio de produção.
 3. Vercel → as 4 variáveis de ambiente.
+
+## [Implementation Order] — status real
+
+| Etapa | Status | Evidência |
+|---|---|---|
+| 0. Pré-requisitos | ✅ | Node.js 26.13.0 + npm 9.2.0 verificados |
+| 1. Setup do projeto | ✅ | Next 16.4.5, React 19.3.1, Tailwind 4.3.4, TS 5.9, ESLint 9 (flat), Vitest 5 |
+| 2. Banco de dados | ✅ código / ⏳ aplicação | 3 migrations + `src/lib/types.ts` (aplicação aguarda PAT/connection string) |
+| 3. Autenticação | ✅ | `src/proxy.ts`, `/login`, `/auth/callback`, `lib/supabase/*` |
+| 4. Motor financeiro + cadastros | ✅ | `lib/finance.ts` (+13 testes), CRUD de cartões, contas fixas, ganhos, folha e compras |
+| 5. Visão mensal | ✅ | `/mes` com balanço, cartões, contas fixas editáveis, folha e ganhos |
+| 6. Dashboard e projeção | ✅ | `/dashboard` com histórico 6m e previsão 6/12 meses |
+| 7. Polimento e entrega | ✅ | mobile-first, README completo, lint/build/testes verdes |
+
+### Validações executadas
+
+- `npm run build` → 11 rotas compiladas (Turbopack) sem erros de TypeScript.
+- `npm test` → 13 testes do motor financeiro passando.
+- `npm run lint` → exit 0, sem erros/avisos.
+- Smoke test (`npm run start`): `/login` → 200; `/mes` → 307 (redireciona para `/login` sem sessão).
+
+### Pendências do ambiente
+
+1. Aplicar as migrations no Supabase (SQL Editor, Management API com PAT ou `supabase db push`).
+2. Substituir o placeholder da `SUPABASE_SECRET_KEY` no `.env.local`.
+3. Habilitar o provider Google no Supabase e adicionar `http://localhost:3000/auth/callback` às Redirect URLs.
+4. (Opcional) atualizar o npm (`npm install -g npm@latest`).
+
+### Commits
+
+- `chore: setup Next.js 16, schema Supabase e motor financeiro`
+- `feat: autenticacao Supabase, visao mensal, CRUDs e dashboard com projecao`
+
