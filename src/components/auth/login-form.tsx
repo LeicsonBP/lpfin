@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useTransition } from 'react';
 
 import { SubmitButton } from '@/components/ui/submit-button';
 import { Field, Input } from '@/components/ui/kit';
@@ -13,10 +13,19 @@ export function LoginForm() {
     mode === 'signin' ? signInWithPasswordAction : signUpWithPasswordAction,
     undefined,
   );
+  const [pending, startTransition] = useTransition();
+
+  // mesmo motivo do EntityForm: sem isso o React 19 limpa e-mail e senha
+  // quando o login falha.
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    startTransition(() => formAction(formData));
+  }
 
   return (
     <div className="space-y-4">
-      <form action={formAction} className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <Field label="E-mail" htmlFor="email" error={state && !state.ok ? state.fieldErrors?.email?.[0] : undefined}>
           <Input
             id="email"
@@ -57,7 +66,7 @@ export function LoginForm() {
           </p>
         ) : null}
 
-        <SubmitButton className="w-full" pendingLabel="Entrando...">
+        <SubmitButton className="w-full" pendingLabel="Entrando..." pending={pending}>
           {mode === 'signin' ? 'Entrar' : 'Criar conta'}
         </SubmitButton>
       </form>

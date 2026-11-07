@@ -1,7 +1,7 @@
 'use client';
 
 import { clsx } from 'clsx';
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 
 import { SubmitButton } from '@/components/ui/submit-button';
 import { Field, Input, MoneyInput, Select } from '@/components/ui/kit';
@@ -54,6 +54,22 @@ export function EntityForm({
   className?: string;
 }) {
   const [state, formAction] = useActionState(action, undefined);
+  const [pending, startTransition] = useTransition();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // React 19 limpa os campos não controlados depois de cada action (inclusive
+  // quando a validação falha). Para não perder o que foi digitado, o envio é
+  // feito aqui mesmo (a action não roda pelo <form>) e a limpeza acontece
+  // apenas quando o servidor confirma o sucesso.
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    startTransition(() => formAction(formData));
+  }
+
+  useEffect(() => {
+    if (state?.ok) formRef.current?.reset();
+  }, [state]);
 
   // guarda o valor dos campos que controlam a visibilidade de outros (ex.: tipo)
   const [values, setValues] = useState<Record<string, string>>(() => {
@@ -77,8 +93,15 @@ export function EntityForm({
     return field.showWhen.equals.includes(values[field.showWhen.field] ?? '');
   });
 
+  // erros de campos que não estão visíveis (ex.: mês escondido no tipo "fixa")
+  // não podem sumir silenciosamente: mostramos a mensagem abaixo do aviso.
+  const fieldErrors = state && !state.ok ? (state.fieldErrors ?? {}) : {};
+  const hiddenFieldErrors = Object.entries(fieldErrors).filter(
+    ([name]) => !visibleFields.some((field) => field.name === name),
+  );
+
   return (
-    <form action={formAction} className={clsx('space-y-4', className)}>
+    <form ref={formRef} onSubmit={handleSubmit} className={clsx('space-y-4', className)}>
       {id ? <input type="hidden" name="id" value={id} /> : null}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -188,9 +211,19 @@ export function EntityForm({
       {extra}
 
       {state && !state.ok ? (
-        <p className="rounded-xl bg-negative-soft px-3 py-2 text-xs font-medium text-negative">
-          {state.error}
-        </p>
+        <div className="space-y-1 rounded-xl bg-negative-soft px-3 py-2 text-xs font-medium text-negative">
+          <p>{state.error}</p>
+          {hiddenFieldErrors.length > 0 ? (
+            <ul className="list-disc pl-4 text-[11px]">
+              {hiddenFieldErrors.map(([name, messages]) => (
+                <li key={name}>
+                  {(fields.find((field) => field.name === name)?.label ?? name)}:{' '}
+                  {messages[0]}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       ) : null}
 
       {state && state.ok && state.message ? (
@@ -200,7 +233,7 @@ export function EntityForm({
       ) : null}
 
       <div className="flex items-center gap-2">
-        <SubmitButton>{submitLabel}</SubmitButton>
+        <SubmitButton pending={pending}>{submitLabel}</SubmitButton>
       </div>
     </form>
   );

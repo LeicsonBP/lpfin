@@ -17,25 +17,29 @@ export function SubmitButton({
   className,
   pendingLabel = 'Salvando...',
   variant = 'primary',
+  pending,
 }: {
   children: React.ReactNode;
   className?: string;
   pendingLabel?: string;
   variant?: ButtonVariant;
+  /** quando o envio é controlado por `useTransition` (fora do action do form) */
+  pending?: boolean;
 }) {
-  const { pending } = useFormStatus();
+  const status = useFormStatus();
+  const isPending = pending ?? status.pending;
 
   return (
     <button
       type="submit"
-      disabled={pending}
+      disabled={isPending}
       className={clsx(
         'inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70',
         VARIANTS[variant],
         className,
       )}
     >
-      {pending ? pendingLabel : children}
+      {isPending ? pendingLabel : children}
     </button>
   );
 }

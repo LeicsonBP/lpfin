@@ -19,6 +19,12 @@ function readUpdateForm(formData: FormData) {
   };
 }
 
+/** Lê um campo opcional (ausente ou vazio = undefined). */
+function optionalField(formData: FormData, name: string): string | undefined {
+  const value = formData.get(name);
+  return typeof value === 'string' && value !== '' ? value : undefined;
+}
+
 function readCreateForm(formData: FormData) {
   return {
     name: formData.get('name'),
@@ -27,8 +33,9 @@ function readCreateForm(formData: FormData) {
     kind: formData.get('kind') ?? 'fixed',
     installments_count: formData.get('installments_count') ?? 1,
     current_installment: formData.get('current_installment') ?? 1,
-    reference_year: formData.get('reference_year'),
-    reference_month: formData.get('reference_month'),
+    // mês/ano ficam escondidos quando o tipo é "fixa": ausentes no FormData
+    reference_year: optionalField(formData, 'reference_year'),
+    reference_month: optionalField(formData, 'reference_month'),
     is_active: checkbox(formData, 'is_active'),
   };
 }

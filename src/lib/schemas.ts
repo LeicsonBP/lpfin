@@ -30,6 +30,12 @@ const daySchema = z.coerce
   .min(1, 'Dia deve estar entre 1 e 31')
   .max(31, 'Dia deve estar entre 1 e 31');
 
+/** Campo opcional que chega vazio ('' ou ausente) quando está escondido no formulário. */
+const blankToUndefined = (value: unknown) => (value === '' || value === null ? undefined : value);
+
+const optionalMonthSchema = z.preprocess(blankToUndefined, monthSchema.optional());
+const optionalYearSchema = z.preprocess(blankToUndefined, yearSchema.optional());
+
 const nameSchema = z
   .string()
   .trim()
@@ -67,8 +73,9 @@ export const fixedBillCreateSchema = fixedBillSchema
     installments_count: z.coerce.number().int().min(1).max(480).default(1),
     /** parcela em que a conta está hoje (ex.: 35 de 36) */
     current_installment: z.coerce.number().int().min(1).max(480).default(1),
-    reference_year: yearSchema.optional(),
-    reference_month: monthSchema.optional(),
+    /** mês/ano só são enviados quando o tipo é parcelado */
+    reference_year: optionalYearSchema,
+    reference_month: optionalMonthSchema,
   })
   .refine((data) => data.kind === 'fixed' || data.installments_count >= 1, {
     message: 'Informe o número de parcelas',
