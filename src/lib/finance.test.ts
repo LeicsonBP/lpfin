@@ -4,6 +4,7 @@ import {
   addMonths,
   averageFixedBill,
   buildInstallmentPlan,
+  fixedBillMonthValues,
   forecastNextMonths,
   groupByCard,
   historicalSeries,
@@ -227,6 +228,74 @@ describe('resumo mensal', () => {
     });
 
     expect(summary.balance).toBe(-7000);
+  });
+
+  it('conta fixa sem lançamento no mês entra pelo valor base', () => {
+    const values = fixedBillMonthValues([makeBill({ base_value: 1500 })], []);
+
+    expect(values).toHaveLength(1);
+    expect(values[0]).toMatchObject({ amount: 1500, entry: null, isPaid: false });
+  });
+
+  it('lançamento do mês substitui o valor base e o "pago" não muda o total', () => {
+    const paid = fixedBillMonthValues(
+      [makeBill({ base_value: 1500 })],
+      [makeEntry({ amount: 1620.5, is_paid: true })],
+    );
+    const pending = fixedBillMonthValues(
+      [makeBill({ base_value: 1500 })],
+      [makeEntry({ amount: 1620.5, is_paid: false })],
+    );
+
+    expect(paid[0]?.amount).toBe(1620.5);
+    expect(paid[0]?.isPaid).toBe(true);
+    expect(pending[0]?.amount).toBe(1620.5);
+    expect(pending[0]?.isPaid).toBe(false);
+  });
+
+  it('ignora conta inativa sem lançamento e conta parcelada fora da janela', () => {
+    const values = fixedBillMonthValues(
+      [
+        makeBill({ id: 'inativa', is_active: false }),
+        makeBill({ id: 'parcelada', kind: 'installment', installments_count: 36 }),
+        makeBill({ id: 'ativa' }),
+      ],
+      [],
+    );
+
+    expect(values.map((value) => value.bill.id)).toEqual(['ativa']);
+  });
+
+  it('mantém conta inativa que já tem lançamento (histórico)', () => {
+    const values = fixedBillMonthValues(
+      [makeBill({ id: 'inativa', is_active: false })],
+      [makeEntry({ fixed_bill_id: 'inativa', amount: 300 })],
+    );
+
+    expect(values).toHaveLength(1);
+    expect(values[0]?.amount).toBe(300);
+  });
+
+  it('balanço inclui a conta estimada, independentemente de estar paga', () => {
+    const bills = [makeBill({ base_value: 2000 })];
+
+    const semLancamento = summarizeMonth({
+      installments: [makeInstallment({ amount: 1000 })],
+      fixedEntries: fixedBillMonthValues(bills, []),
+      incomes: [income],
+      payroll: [],
+    });
+
+    const pago = summarizeMonth({
+      installments: [makeInstallment({ amount: 1000 })],
+      fixedEntries: fixedBillMonthValues(bills, [makeEntry({ amount: 2000, is_paid: true })]),
+      incomes: [income],
+      payroll: [],
+    });
+
+    expect(semLancamento.fixedTotal).toBe(2000);
+    expect(semLancamento.balance).toBe(5000);
+    expect(pago.balance).toBe(5000);
   });
 
   it('agrupa por cartão e cria a linha "Sem cartão"', () => {

@@ -237,7 +237,7 @@ export interface MonthlySummary {
   incomeTotal: number;
   /** Compras de cartão do mês (soma das parcelas) */
   cardsTotal: number;
-  /** Contas fixas com o valor real do mês */
+  /** Contas fixas do mês (valor real quando lançado, senão o valor base) */
   fixedTotal: number;
   /** Débitos em folha */
   payrollTotal: number;
@@ -245,9 +245,51 @@ export interface MonthlySummary {
   balance: number;
 }
 
+/** Conta do mês com o valor que entra no balanço (real ou estimado). */
+export interface FixedBillMonthValue {
+  bill: FixedBill;
+  /** lançamento real do mês (null quando ainda não foi lançado) */
+  entry: FixedBillEntry | null;
+  /** valor real do lançamento ou, na falta dele, o valor base da conta */
+  amount: number;
+  /** o checkbox "pago" é só controle pessoal — não altera o total */
+  isPaid: boolean;
+}
+
+/**
+ * Contas que entram no mês:
+ * - conta **fixa ativa** entra sempre, com o valor real do mês quando existe e
+ *   com o **valor base (estimado)** enquanto não houver lançamento;
+ * - conta **parcelada** só entra nos meses em que a parcela existe;
+ * - conta inativa só aparece se tiver lançamento (histórico).
+ */
+export function fixedBillMonthValues(
+  bills: readonly FixedBill[],
+  entries: readonly FixedBillEntry[],
+): FixedBillMonthValue[] {
+  const entryByBill = new Map(entries.map((entry) => [entry.fixed_bill_id, entry] as const));
+  const values: FixedBillMonthValue[] = [];
+
+  for (const bill of bills) {
+    const entry = entryByBill.get(bill.id) ?? null;
+
+    if (!entry && (bill.kind === 'installment' || !bill.is_active)) continue;
+
+    values.push({
+      bill,
+      entry,
+      amount: entry ? entry.amount : bill.base_value,
+      isPaid: entry?.is_paid ?? false,
+    });
+  }
+
+  return values;
+}
+
 export function summarizeMonth(input: {
   installments: readonly Installment[];
-  fixedEntries: readonly FixedBillEntry[];
+  /** aceita `fixedBillMonthValues(...)` — o status "pago" não muda o total */
+  fixedEntries: readonly { amount: number }[];
   incomes: readonly Income[];
   payroll: readonly PayrollDeduction[];
 }): MonthlySummary {

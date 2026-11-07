@@ -4,6 +4,7 @@ import { Badge, Card, EmptyState, SectionTitle } from '@/components/ui/kit';
 import { GhostSubmitButton } from '@/components/ui/submit-button';
 import { deleteIncomeAction } from '@/lib/actions/incomes';
 import { deletePayrollDeductionAction } from '@/lib/actions/payroll';
+import { fixedBillMonthValues } from '@/lib/finance';
 import { formatBRL, formatInstallmentLabel } from '@/lib/format';
 import type {
   FixedBill,
@@ -35,25 +36,15 @@ export function FixedBillsSection({
   reference: MonthRef;
   monthLabel: string;
 }) {
-  const entryByBill = new Map(entries.map((entry) => [entry.fixed_bill_id, entry] as const));
-  const activeBills = bills.filter((bill) => {
-    const entry = entryByBill.get(bill.id);
-
-    // contas parceladas só aparecem nos meses em que a parcela existe
-    if (bill.kind === 'installment') return Boolean(entry);
-
-    return bill.is_active || Boolean(entry);
-  });
-  const total = activeBills.reduce((sum, bill) => {
-    const entry = entryByBill.get(bill.id);
-    return sum + (entry ? entry.amount : bill.base_value);
-  }, 0);
+  // mesma regra do balanço: conta fixa ativa entra mesmo sem lançamento no mês
+  const values = fixedBillMonthValues(bills, entries);
+  const total = values.reduce((sum, value) => sum + value.amount, 0);
 
   return (
     <Card>
       <SectionTitle
         title="Contas"
-        description={`Valores reais de ${monthLabel}`}
+        description={`Valores de ${monthLabel} — real ou estimado`}
         action={
           <div className="flex items-center gap-3">
             <span className="money text-sm font-semibold text-ink">{formatBRL(total)}</span>
@@ -62,7 +53,7 @@ export function FixedBillsSection({
         }
       />
 
-      {activeBills.length === 0 ? (
+      {values.length === 0 ? (
         <EmptyState
           title="Nenhuma conta fixa cadastrada"
           description="Cadastre contas como aluguel, energia e internet."
@@ -77,11 +68,11 @@ export function FixedBillsSection({
         />
       ) : (
         <ul>
-          {activeBills.map((bill) => (
+          {values.map(({ bill, entry }) => (
             <FixedBillRow
               key={bill.id}
               bill={bill}
-              entry={entryByBill.get(bill.id) ?? null}
+              entry={entry}
               reference={reference}
             />
           ))}

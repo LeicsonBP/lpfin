@@ -4,7 +4,7 @@ import { BalanceCard } from '@/components/monthly/balance-card';
 import { CardsSection } from '@/components/monthly/cards-section';
 import { FixedBillsSection, IncomeSection, PayrollSection } from '@/components/monthly/list-sections';
 import { getMonthData } from '@/lib/data/monthly';
-import { summarizeMonth } from '@/lib/finance';
+import { fixedBillMonthValues, summarizeMonth } from '@/lib/finance';
 import { formatMonthLabel } from '@/lib/format';
 import { resolveMonth } from '@/lib/month-context';
 
@@ -19,7 +19,9 @@ export default async function MesPage({
 
   const summary = summarizeMonth({
     installments: data.installments,
-    fixedEntries: data.fixedEntries,
+    // conta fixa ainda sem lançamento no mês já entra pelo valor base: o
+    // checkbox "pago" é só controle pessoal e não mexe no balanço.
+    fixedEntries: fixedBillMonthValues(data.fixedBills, data.fixedEntries),
     incomes: data.incomes,
     payroll: data.payroll,
   });
